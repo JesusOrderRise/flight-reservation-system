@@ -19,3 +19,6 @@ CREATE TABLE IF NOT EXISTS airplane (
                           model VARCHAR(255) NOT NULL,
                           capacity INT NOT NULL CHECK (capacity < 1000 AND capacity > 0)
 );
+
+--TODO: ER DIAGRAM
+--kuralları yok v2de düzelt.
