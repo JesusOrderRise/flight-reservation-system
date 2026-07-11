@@ -1,6 +1,8 @@
 package com.frsystem.service;
 
 import com.frsystem.dto.AirplaneRequest;
+import com.frsystem.dto.AirplaneResponse;
+import com.frsystem.mapper.AirplaneMapper;
 import com.frsystem.model.Airplane;
 import com.frsystem.repository.AirplaneRepository;
 import jakarta.validation.Valid;
@@ -9,7 +11,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
-
 
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,16 @@ public class AirplaneService {
     @Autowired
     private AirplaneRepository airplaneRepository;
 
+    @Autowired
+    private AirplaneMapper airplaneMapper;
+
+    public List<AirplaneResponse> getAll() {
+        return airplaneRepository.findAll()
+                .stream()
+                .map(airplaneMapper::toResponse)
+                .toList();
+    }
+
     //Delete using the ID, with validation of if it exists.
     public void deleteAirplaneByID(Long ID) {
         Airplane existing = airplaneRepository.findById(ID)
@@ -30,84 +41,56 @@ public class AirplaneService {
     }
 
     //Parameter Search, injecting given parameters to the example Airplane class.
-    public List<Airplane> searchWithParameters(String tailNumber, String airline, String model, Integer capacity) {
-        Airplane example = new Airplane();
-        if (tailNumber != null && !tailNumber.isBlank()) {
-            example.setTailNumber(tailNumber);
-        }
-        if (airline != null && !airline.isBlank()) {
-            example.setAirline(airline);
-        }
-        if (model != null && !model.isBlank()) {
-            example.setModel(model);
-        }
-        if (capacity != null && capacity > 0 && capacity < 1000) {
-            example.setCapacity(capacity);
-        }
+    public List<AirplaneResponse> searchWithParameters(AirplaneRequest request) {
 
+        Airplane example = airplaneMapper.toEntity(request);
 
-        //Ignoring nulls.
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withIgnoreNullValues()
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
 
-        return airplaneRepository.findAll(Example.of(example, matcher));
+
+        return airplaneRepository.findAll(Example.of(example, matcher)).stream()
+                .map(airplaneMapper::toResponse) // Her bir entity'yi Response DTO'ya çevir
+                .toList();
     }
 
 
     //saving Airplane With Validation.
-    public Airplane saveAirplane(@Valid AirplaneRequest request) {
+    public AirplaneResponse saveAirplane(@Valid AirplaneRequest request) {
 
-        Airplane airplane = new Airplane();
+        Airplane airplane = airplaneMapper.toEntity(request);
 
 
-        airplane.setTailNumber(request.getTailNumber());
-        airplane.setAirline(request.getAirline());
-        airplane.setModel(request.getModel());
-        airplane.setCapacity(request.getCapacity());
-
-        return airplaneRepository.save(airplane);
+        return airplaneMapper.toResponse(airplaneRepository.save(airplane));
     }
 
     //Finding by ID.
-    public Optional<Airplane> findByID(Long ID) {
-        return airplaneRepository.findById(ID);
+    public Optional<AirplaneResponse> findByID(Long ID) {
+        return airplaneRepository.findById(ID).map(airplaneMapper::toResponse);
     }
 
 
-    //Updating Airplane with new data. The values that wont change should be given as null or blank.
-    public Airplane updateAirplane(Long ID, AirplaneRequest newData) {
+    //Updating Airplane with new data. All the values should be given
+    public AirplaneResponse updateAirplaneByID(Long ID, @Valid AirplaneRequest newData) {
         Airplane existing = airplaneRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no airplane with this ID!"));
+                .orElseThrow(() -> new RuntimeException("There is no Airplane with this ID!"));
 
 
-        if (newData.getTailNumber() != null && !newData.getTailNumber().isBlank()) {
-            if (!existing.getTailNumber().equals(newData.getTailNumber())) {
-                Optional<Airplane> airplaneWithSameTail = airplaneRepository.findByTailNumber(newData.getTailNumber());
+        if (!existing.getTailNumber().equals(newData.getTailNumber())) {
+            Optional<Airplane> airplaneWithSameTail = airplaneRepository.findByTailNumber(newData.getTailNumber());
 
-                if (airplaneWithSameTail.isPresent()) {
-                    throw new RuntimeException("There is an existing plane with the same tail number!");
-                }
+            if (airplaneWithSameTail.isPresent()) {
+                throw new RuntimeException("There is an existing airplane with the same Tail Number!");
             }
-            existing.setTailNumber(newData.getTailNumber());
-        }
-        if (newData.getAirline() != null && !newData.getAirline().isBlank()) {
-            existing.setAirline(newData.getAirline());
-        }
-        if (newData.getModel() != null && !newData.getModel().isBlank()) {
-            existing.setModel(newData.getModel());
         }
 
-        if (newData.getCapacity() != null) {
-            if (newData.getCapacity() < 1 || newData.getCapacity() > 999) {
-                throw new RuntimeException("The capacity must be a between 1 and 999!");
-            }
-            existing.setCapacity(newData.getCapacity());
-        }
-        return airplaneRepository.save(existing);
+        airplaneMapper.updateEntity(existing, newData);
+        Airplane updatedEntity = airplaneRepository.save(existing);
+        return airplaneMapper.toResponse(updatedEntity);
     }
-    //test yaz.
+
 }
 
 

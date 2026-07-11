@@ -1,6 +1,8 @@
 package com.frsystem.service;
 
 import com.frsystem.dto.AirportRequest;
+import com.frsystem.dto.AirportResponse;
+import com.frsystem.mapper.AirportMapper;
 import com.frsystem.model.Airport;
 import com.frsystem.repository.AirportRepository;
 import jakarta.validation.Valid;
@@ -20,6 +22,17 @@ public class AirportService {
     @Autowired
     private AirportRepository airportRepository;
 
+    @Autowired
+    private AirportMapper airportMapper;
+
+    //***************************Gerekli mi??????*******************
+    public List<AirportResponse> getAll() {
+        return airportRepository.findAll()
+                .stream()
+                .map(airportMapper::toResponse)
+                .toList();
+    }
+
     //Delete using the ID, with validation of if it exists.
     public void deleteAirportByID(Long ID) {
         Airport existing = airportRepository.findById(ID)
@@ -27,90 +40,56 @@ public class AirportService {
         airportRepository.delete(existing);
     }
 
+    //**************************************************
     //Parameter Search, injecting given parameters to the example Airplane class.
-    public List<Airport> searchWithParameters(String iataCode, String name, String city, String country) {
+    public List<AirportResponse> searchWithParameters(AirportRequest request) {
 
-        Airport example = new Airport();
-
-        if (iataCode != null && !iataCode.isBlank()) {
-            String cleaned = iataCode.trim().toUpperCase();
-            // Optional: Geçersiz IATA code'u filtrele
-            if (cleaned.matches("^[A-Z]{3}$")) {
-                example.setIataCode(cleaned);
-            }
-        }
-
-        if (name != null && !name.isBlank()) {
-            example.setName(name.trim());
-        }
-
-
-        if (city != null && !city.isBlank()) {
-            example.setCity(city.trim());
-        }
-
-
-        if (country != null && !country.isBlank()) {
-            example.setCountry(country.trim());
-        }
+        Airport example = airportMapper.toEntity(request);
 
         ExampleMatcher matcher = ExampleMatcher.matching()
                 .withIgnoreNullValues()
                 .withIgnoreCase()
                 .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING); // Partial match
 
-        return airportRepository.findAll(Example.of(example, matcher));
+        return airportRepository.findAll(Example.of(example, matcher)).stream()
+                .map(airportMapper::toResponse) // Her bir entity'yi Response DTO'ya çevir
+                .toList();
     }
+    //TODO: DTO İLE YAP! CHECK!
 
     //saving Airport With Validation.
-    public Airport saveAirport(@Valid AirportRequest request) {
+    public AirportResponse saveAirport(@Valid AirportRequest request) {
 
-        Airport airport = new Airport();
+        Airport airport = airportMapper.toEntity(request);
 
-        airport.setIataCode(request.getIataCode());
-        airport.setName(request.getName());
-        airport.setCountry(request.getCountry());
-        airport.setCity(request.getCity());
-
-        return airportRepository.save(airport);
+        //TODO: mapper yaz CHECK!
+        return airportMapper.toResponse(airportRepository.save(airport));
     }
 
     //Finding by ID.
-    public Optional<Airport> findByID(Long ID) {
-        return airportRepository.findById(ID);
+    public Optional<AirportResponse> findByID(Long ID) {
+        return airportRepository.findById(ID).map(airportMapper::toResponse);
     }
 
-    //Updating Airport with new data. The values that wont change should be given as null or blank.
-    public Airport updateAirport(Long ID, AirportRequest newData) {
+    //Updating Airport with new data. All the values should be given.
+    public AirportResponse updateAirportByID(Long ID, @Valid AirportRequest newData) {
 
         Airport existing = airportRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no airport with this ID!"));
+                .orElseThrow(() -> new RuntimeException("There is no Airport with this ID!"));
 
+        if (!existing.getIataCode().equals(newData.getIataCode())) {
+            Optional<Airport> airportWithSameIata = airportRepository.findByIataCode(newData.getIataCode());
 
-        if (newData.getIataCode() != null && !newData.getIataCode().isBlank()) {
-            String cleaned = newData.getIataCode();
-
-            if (cleaned.matches("^[A-Z]{3}$")) {
-                if (!existing.getIataCode().equals(newData.getIataCode())) {
-                    Optional<Airport> airportWithSameIata = airportRepository.findByIataCode(newData.getIataCode());
-
-                    if (airportWithSameIata.isPresent()) {
-                        throw new RuntimeException("There is an existing airport with the same IATA!");
-                    }
-                }
-                existing.setIataCode(newData.getIataCode());
+            if (airportWithSameIata.isPresent()) {
+                throw new RuntimeException("There is an existing airport with the same IATA!");
             }
         }
-        if (newData.getName() != null && !newData.getName().isBlank()) {
-            existing.setName(newData.getName());
-        }
-        if (newData.getCountry() != null && !newData.getCountry().isBlank()) {
-            existing.setCountry(newData.getCountry());
-        }
-        if (newData.getCity() != null && !newData.getCity().isBlank()) {
-            existing.setCity(newData.getCity());
-        }
-        return airportRepository.save(existing);
+
+        airportMapper.updateEntity(existing, newData);
+        Airport updatedEntity = airportRepository.save(existing);
+        return airportMapper.toResponse(updatedEntity);
+
+
     }
 
 
