@@ -3,6 +3,7 @@ package com.frsystem.service;
 import com.frsystem.dto.AirportRequest;
 import com.frsystem.dto.AirportResponse;
 import com.frsystem.repository.AirportRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
+@ActiveProfiles("test")
 public class AirportServiceTest {
 
     @Autowired
@@ -78,9 +81,11 @@ public class AirportServiceTest {
 
         airportService.saveAirport(airport);
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
+        Exception exception = assertThrows(RuntimeException.class, () -> {
             airportService.saveAirport(airport1);
         });
+
+        assertEquals("There is an existing airplane with the same Iata Code!", exception.getMessage());
 
     }
 

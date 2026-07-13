@@ -16,14 +16,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 })
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-class AirplaneRepositoryTest {
+public class UserRepositoryTest {
 
     @Autowired
-    private AirplaneRepository airplaneRepository;
+    private UserRepository userRepository;
 
     //is repository loaded?
     @Test
     void repositoryShouldLoadContext() {
-        assertNotNull(airplaneRepository);
+        assertNotNull(userRepository);
     }
 }

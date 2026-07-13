@@ -62,6 +62,10 @@ public class AirplaneService {
 
         Airplane airplane = airplaneMapper.toEntity(request);
 
+        if (airplaneRepository.findByTailNumber(airplane.getTailNumber()).isPresent()) {
+            throw new RuntimeException("There is an existing airplane with the same Tail Number!");
+        }
+
 
         return airplaneMapper.toResponse(airplaneRepository.save(airplane));
     }

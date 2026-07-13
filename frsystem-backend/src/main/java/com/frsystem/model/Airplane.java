@@ -15,18 +15,18 @@ public class Airplane {
     //Variables
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(name = "tail_number", nullable = false, unique = true)
-    String tailNumber; //UNIQUE
+    private String tailNumber; //UNIQUE
 
     @Column(name = "airline", nullable = false)
-    String airline;
+    private String airline;
 
     @Column(name = "model", nullable = false)
-    String model;
+    private String model;
 
     @Column(name = "capacity", nullable = false)
-    Integer capacity;
+    private Integer capacity;
 
 }

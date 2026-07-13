@@ -3,6 +3,7 @@ package com.frsystem.service;
 import com.frsystem.dto.AirplaneRequest;
 import com.frsystem.dto.AirplaneResponse;
 import com.frsystem.repository.AirplaneRepository;
+import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -10,7 +11,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
 import java.util.Optional;
@@ -19,6 +20,8 @@ import java.util.stream.Stream;
 import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
+@Transactional
+@ActiveProfiles("test")
 public class AirplaneServiceTest {
 
     @Autowired
@@ -79,9 +82,11 @@ public class AirplaneServiceTest {
 
         airplaneService.saveAirplane(airplane);
 
-        assertThrows(DataIntegrityViolationException.class, () -> {
+        Exception exception = assertThrows(RuntimeException.class, () -> {
             airplaneService.saveAirplane(airplane1);
         });
+
+        assertEquals("There is an existing airplane with the same Tail Number!", exception.getMessage());
 
     }
 
