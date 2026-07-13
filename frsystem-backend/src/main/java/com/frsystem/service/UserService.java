@@ -28,16 +28,31 @@ public class UserService {
 
 
     public RegisterResponse registerPassenger(@Valid RegisterRequest request) {
-        User userForRegister = userMapper.toUser(request);
-        userForRegister.setPasswordHash(passwordEncoder.encode(request.getPassword()));
-        userForRegister.setRole(UserRoles.PASSENGER);
+        User passengerForRegister = userMapper.toUser(request);
+        passengerForRegister.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
-        if (userRepository.findByEmail(userForRegister.getEmail()).isPresent()) {
+
+        if (userRepository.findByEmail(passengerForRegister.getEmail()).isPresent()) {
             throw new RuntimeException("There is an existing passenger with the same email!");
         }
 
-        return userMapper.toRegisterResponse(userRepository.save(userForRegister));
+        passengerForRegister.setRole(UserRoles.PASSENGER);
+
+        return userMapper.toRegisterResponse(userRepository.save(passengerForRegister));
     }
 
+    public RegisterResponse registerAdmin(@Valid RegisterRequest request) {
+        User adminForRegister = userMapper.toUser(request);
+        adminForRegister.setPasswordHash(passwordEncoder.encode(request.getPassword()));
+        adminForRegister.setRole(UserRoles.PASSENGER);
+
+        if (userRepository.findByEmail(adminForRegister.getEmail()).isPresent()) {
+            throw new RuntimeException("There is an existing admin with the same email!");
+        }
+
+        adminForRegister.setRole(UserRoles.ADMIN);
+
+        return userMapper.toRegisterResponse(userRepository.save(adminForRegister));
+    }
 
 }
