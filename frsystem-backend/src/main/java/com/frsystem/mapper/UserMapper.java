@@ -1,6 +1,7 @@
 package com.frsystem.mapper;
 
 import com.frsystem.dto.user.LoginRequest;
+import com.frsystem.dto.user.LoginResponse;
 import com.frsystem.dto.user.RegisterRequest;
 import com.frsystem.dto.user.RegisterResponse;
 import com.frsystem.model.User;
@@ -23,6 +24,10 @@ public interface UserMapper {
     @Mapping(target = "role", ignore = true)
     User toUser(LoginRequest request);
 
+
     RegisterResponse toRegisterResponse(User user);
+
+    @Mapping(target = "token", ignore = true)
+    LoginResponse toLoginResponse(User user);
 
 }
