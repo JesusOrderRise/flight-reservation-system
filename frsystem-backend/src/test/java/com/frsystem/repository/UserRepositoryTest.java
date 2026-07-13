@@ -12,14 +12,14 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
         "spring.flyway.enabled=false",
         "spring.jpa.hibernate.ddl-auto=create-drop"
 })
-class AirplaneRepositoryTest {
+public class UserRepositoryTest {
 
     @Autowired
-    private AirplaneRepository airplaneRepository;
+    private UserRepository userRepository;
 
     //is repository loaded?
     @Test
     void repositoryShouldLoadContext() {
-        assertNotNull(airplaneRepository);
+        assertNotNull(userRepository);
     }
 }

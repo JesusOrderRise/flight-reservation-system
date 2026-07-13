@@ -62,7 +62,11 @@ public class AirportService {
 
         Airport airport = airportMapper.toEntity(request);
 
-        //TODO: mapper yaz CHECK!
+        if (airportRepository.findByIataCode(airport.getIataCode()).isPresent()) {
+            throw new RuntimeException("There is an existing airplane with the same Iata Code!");
+        }
+
+
         return airportMapper.toResponse(airportRepository.save(airport));
     }
 
