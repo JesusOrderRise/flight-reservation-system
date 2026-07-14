@@ -1,11 +1,14 @@
 package com.frsystem.service;
 
 
+import com.frsystem.dto.user.LoginRequest;
+import com.frsystem.dto.user.LoginResponse;
 import com.frsystem.dto.user.RegisterRequest;
 import com.frsystem.dto.user.RegisterResponse;
 import com.frsystem.enums.UserRoles;
 import com.frsystem.model.User;
 import com.frsystem.repository.UserRepository;
+import com.frsystem.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,13 +30,16 @@ import static org.junit.jupiter.api.Assertions.*;
 public class UserServiceTest {
 
     @Autowired
-    private UserService userService;
+    private AuthService userService;
 
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JwtTokenProvider jwtTokenProvider;
 
     @BeforeEach
     void tearDown() {
@@ -51,6 +57,16 @@ public class UserServiceTest {
                 new RegisterRequest("Ahmet", "Yılmaz", "frsystem@frsystem.com", "frsystem123!"),
                 new RegisterRequest("Ahmet", "Yılmaz", "frsystem@frsystem.com", "Frsystem!"),
                 new RegisterRequest("Ahmet", "Yılmaz", "frsystem@frsystem.com", "Frsystem123")
+
+        );
+    }
+
+    //all possible invalid login requests
+    private static Stream<LoginRequest> provideInvalidLoginRequest() {
+        return Stream.of(
+                new LoginRequest(null, "password"),
+                new LoginRequest("try@try.com", null),
+                new LoginRequest("trytry.com", "password")
 
         );
     }
@@ -133,6 +149,72 @@ public class UserServiceTest {
         });
 
         assertEquals("There is an existing admin with the same email!", exception.getMessage());
+    }
+
+
+    @ParameterizedTest
+    @MethodSource("provideInvalidLoginRequest")
+    void shouldThrowExceptionWhenLoginCredentialsAreInvalid(LoginRequest invalidLoginRequest) {
+
+        assertThrows(ConstraintViolationException.class, () -> {
+            userService.login(invalidLoginRequest);
+        });
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTheUserCouldNotBeFoundInLogin() {
+        RegisterRequest registerRequest = new RegisterRequest("Mahmut", "Tuncer", "mahmut@tuncer.com", "Mahmut123!");
+        userService.registerPassenger(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("blank@blank.com", "Blank123!");
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            userService.login(loginRequest);
+        });
+
+        assertEquals("User not found!", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenThePasswordIsWrongInLogin() {
+        RegisterRequest registerRequest = new RegisterRequest("Mahmut", "Tuncer", "mahmut@tuncer.com", "Mahmut123!");
+        userService.registerPassenger(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("mahmut@tuncer.com", "Blank123!");
+
+        Exception exception = assertThrows(RuntimeException.class, () -> {
+            userService.login(loginRequest);
+        });
+
+        assertEquals("Invalid password!", exception.getMessage());
+    }
+
+    @Test
+    void shouldSuccessfullyProvideATokenWhenPassengerLogin() {
+        RegisterRequest registerRequest = new RegisterRequest("Mahmut", "Tuncer", "mahmut@tuncer.com", "Mahmut123!");
+        userService.registerPassenger(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("mahmut@tuncer.com", "Mahmut123!");
+
+        LoginResponse loginResponse = userService.login(loginRequest);
+
+        assertNotNull(loginResponse.getToken());
+        assertEquals("mahmut@tuncer.com", jwtTokenProvider.extractEmail(loginResponse.getToken()));
+        assertEquals("PASSENGER", jwtTokenProvider.extractRole(loginResponse.getToken()));
+    }
+
+    @Test
+    void shouldSuccessfullyProvideATokenWhenAdminLogin() {
+        RegisterRequest registerRequest = new RegisterRequest("Mahmut", "Tuncer", "mahmut@tuncer.com", "Mahmut123!");
+        userService.registerAdmin(registerRequest);
+
+        LoginRequest loginRequest = new LoginRequest("mahmut@tuncer.com", "Mahmut123!");
+
+        LoginResponse loginResponse = userService.login(loginRequest);
+
+        assertNotNull(loginResponse.getToken());
+        assertEquals("mahmut@tuncer.com", jwtTokenProvider.extractEmail(loginResponse.getToken()));
+        assertEquals("ADMIN", jwtTokenProvider.extractRole(loginResponse.getToken()));
     }
 
 }
