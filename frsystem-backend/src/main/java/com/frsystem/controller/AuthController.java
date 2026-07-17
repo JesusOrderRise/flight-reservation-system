@@ -1,9 +1,9 @@
 package com.frsystem.controller;
 
-import com.frsystem.dto.user.LoginRequest;
-import com.frsystem.dto.user.LoginResponse;
-import com.frsystem.dto.user.RegisterRequest;
-import com.frsystem.dto.user.RegisterResponse;
+import com.frsystem.dto.auth.LoginRequest;
+import com.frsystem.dto.auth.LoginResponse;
+import com.frsystem.dto.auth.RegisterRequest;
+import com.frsystem.dto.auth.RegisterResponse;
 import com.frsystem.service.AuthService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;

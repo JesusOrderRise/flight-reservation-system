@@ -52,7 +52,7 @@ public class AirplaneService {
 
 
         return airplaneRepository.findAll(Example.of(example, matcher)).stream()
-                .map(airplaneMapper::toResponse) // Her bir entity'yi Response DTO'ya çevir
+                .map(airplaneMapper::toResponse)
                 .toList();
     }
 

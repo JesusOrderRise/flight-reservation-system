@@ -198,7 +198,7 @@ public class AirportServiceTest {
 
     @ParameterizedTest
     @MethodSource("provideInvalidAirports")
-    void shouldThrowExceptionWhenUpdateBodyVioletesValidation(AirportRequest invalidRequest) {
+    void shouldThrowExceptionWhenUpdateBodyViolatesValidation(AirportRequest invalidRequest) {
         AirportRequest airport = new AirportRequest("ESB", "Esenboğa", "Türkiye", "Ankara");
         AirportResponse savedAirport = airportService.saveAirport(airport);
         Long savedID = savedAirport.getId();

@@ -30,11 +30,24 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
+                        // Auth endpoints
                         .requestMatchers("/api/v1/auth/register").permitAll()
                         .requestMatchers("/api/v1/auth/login").permitAll()
                         .requestMatchers("/api/v1/auth/admin-register").hasAuthority("ADMIN")
+
+                        // TODO: PASSENGERA READ ONLY
                         .requestMatchers("/api/v1/airplanes/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/airports/**").hasAuthority("ADMIN")
+
+                        // Flight Management
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/flights/**").permitAll()
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/flights/search").permitAll()
+                        .requestMatchers("/api/v1/flights/**").hasAuthority("ADMIN")
+
+                        // Reservation Management:
+                        .requestMatchers("/api/v1/reservations/**").authenticated()
+
+                        // Swagger
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html").permitAll()
                         .anyRequest().authenticated()
                 )
