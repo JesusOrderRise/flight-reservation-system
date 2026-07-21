@@ -2,6 +2,8 @@ package com.frsystem.service;
 
 import com.frsystem.dto.AirportRequest;
 import com.frsystem.dto.AirportResponse;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.repository.AirportRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
@@ -14,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -81,7 +82,7 @@ public class AirportServiceTest {
 
         airportService.saveAirport(airport);
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             airportService.saveAirport(airport1);
         });
 
@@ -107,7 +108,7 @@ public class AirportServiceTest {
         AirportResponse savedAirport = airportService.saveAirport(airport);
         Long ID = savedAirport.getId();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
             airportService.deleteAirportByID(ID + 1);
         });
 
@@ -124,7 +125,7 @@ public class AirportServiceTest {
 
         Long searchedID = savedAirport.getId();
 
-        AirportResponse foundEntity = airportService.findByID(searchedID).get();
+        AirportResponse foundEntity = airportService.findByID(searchedID);
 
 
         assertEquals(searchedID, foundEntity.getId());
@@ -135,12 +136,15 @@ public class AirportServiceTest {
     }
 
     @Test
-    void shouldReturnEmptyWhenNonExistingIdSearched() {
+    void shouldThrowExceptionWhenNonExistingIdSearched() {
         AirportRequest existingAirport = new AirportRequest("ESB", "Esenboğa", "Türkiye", "Ankara");
         AirportResponse savedAirport = airportService.saveAirport(existingAirport);
 
-        assertFalse(airportService.findByID(savedAirport.getId() + 1).isPresent());
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            airportService.findByID(savedAirport.getId() + 1);
+        });
 
+        assertEquals("There is no Airport with this ID!", exception.getMessage());
     }
 
     @Test
@@ -189,7 +193,7 @@ public class AirportServiceTest {
 
         Long wrongSearchID = savedAirport.getId();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
             airportService.updateAirportByID(wrongSearchID + 1, updateRequest);
         });
 
@@ -220,12 +224,12 @@ public class AirportServiceTest {
         AirportRequest updateRequest = new AirportRequest("IST", "İstanbul Havalimanı", "Türkiye", "İstanbul");
         airportService.updateAirportByID(savedID, updateRequest);
 
-        Optional<AirportResponse> afterUpdateObject = airportService.findByID(savedID);
+        AirportResponse afterUpdateObject = airportService.findByID(savedID);
 
-        assertEquals(updateRequest.getIataCode(), afterUpdateObject.get().getIataCode());
-        assertEquals(updateRequest.getName(), afterUpdateObject.get().getName());
-        assertEquals(updateRequest.getCountry(), afterUpdateObject.get().getCountry());
-        assertEquals(updateRequest.getCity(), afterUpdateObject.get().getCity());
+        assertEquals(updateRequest.getIataCode(), afterUpdateObject.getIataCode());
+        assertEquals(updateRequest.getName(), afterUpdateObject.getName());
+        assertEquals(updateRequest.getCountry(), afterUpdateObject.getCountry());
+        assertEquals(updateRequest.getCity(), afterUpdateObject.getCity());
 
     }
 
@@ -239,7 +243,7 @@ public class AirportServiceTest {
         Long ID = savedAirportForUpdate.getId();
 
         AirportRequest updateRequest = new AirportRequest("ESB", "İstanbul Havalimanı", "Türkiye", "İstanbul");
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             airportService.updateAirportByID(ID, updateRequest);
         });
 

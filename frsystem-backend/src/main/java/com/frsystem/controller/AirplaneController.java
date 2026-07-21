@@ -24,6 +24,11 @@ public class AirplaneController {
         return airplaneService.getAll();
     }
 
+    @GetMapping(path = "/{id}")
+    public AirplaneResponse findByID(@PathVariable Long id) {
+        return airplaneService.findByID(id);
+    }
+
     @PostMapping(path = "/search")
     public List<AirplaneResponse> searchWithParameters(@RequestBody AirplaneRequest search) {
         return airplaneService.searchWithParameters(search);

@@ -6,6 +6,8 @@ import com.frsystem.dto.auth.LoginResponse;
 import com.frsystem.dto.auth.RegisterRequest;
 import com.frsystem.dto.auth.RegisterResponse;
 import com.frsystem.enums.UserRoles;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.UnauthorizedException;
 import com.frsystem.model.User;
 import com.frsystem.repository.UserRepository;
 import com.frsystem.security.JwtTokenProvider;
@@ -104,7 +106,7 @@ public class AuthServiceTest {
 
         userService.registerPassenger(request);
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             userService.registerPassenger(request1);
         });
 
@@ -144,7 +146,7 @@ public class AuthServiceTest {
 
         userService.registerAdmin(request);
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             userService.registerAdmin(request1);
         });
 
@@ -168,7 +170,7 @@ public class AuthServiceTest {
 
         LoginRequest loginRequest = new LoginRequest("blank@blank.com", "Blank123!");
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(UnauthorizedException.class, () -> {
             userService.login(loginRequest);
         });
 
@@ -182,7 +184,7 @@ public class AuthServiceTest {
 
         LoginRequest loginRequest = new LoginRequest("mahmut@tuncer.com", "Blank123!");
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(UnauthorizedException.class, () -> {
             userService.login(loginRequest);
         });
 

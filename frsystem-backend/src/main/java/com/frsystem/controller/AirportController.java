@@ -24,6 +24,11 @@ public class AirportController {
         return airportservice.getAll();
     }
 
+    @GetMapping(path = "/{id}")
+    public AirportResponse findByID(@PathVariable Long id) {
+        return airportservice.findByID(id);
+    }
+
     @PostMapping(path = "/search")
     public List<AirportResponse> searchWithParameters(@RequestBody AirportRequest search) {
         return airportservice.searchWithParameters(search);
@@ -43,7 +48,7 @@ public class AirportController {
     }
 
     @DeleteMapping(path = "/{id}")
-    public void updateAirportByID(@PathVariable Long id) {
+    public void deleteAirportByID(@PathVariable Long id) {
         airportservice.deleteAirportByID(id);
     }
 }

@@ -4,6 +4,7 @@ import com.frsystem.dto.*;
 import com.frsystem.dto.auth.LoginRequest;
 import com.frsystem.dto.auth.LoginResponse;
 import com.frsystem.enums.ReservationStatus;
+import com.frsystem.exception.ConflictException;
 import com.frsystem.repository.ReservationRepository;
 import com.frsystem.security.JwtTokenProvider;
 import jakarta.transaction.Transactional;
@@ -131,7 +132,7 @@ public class ReservationServiceTest {
 
         reservationService.makeReservation(reservationRequest);
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             reservationService.makeReservation(reservationRequestWithSameSeat);
         });
 

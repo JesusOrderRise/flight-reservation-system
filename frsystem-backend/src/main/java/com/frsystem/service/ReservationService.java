@@ -3,6 +3,8 @@ package com.frsystem.service;
 import com.frsystem.dto.ReservationRequest;
 import com.frsystem.dto.ReservationResponse;
 import com.frsystem.enums.ReservationStatus;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.mapper.ReservationMapper;
 import com.frsystem.model.Reservation;
 import com.frsystem.repository.ReservationRepository;
@@ -13,6 +15,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+
+import java.util.List;
 
 
 @Service
@@ -31,7 +35,7 @@ public class ReservationService {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (reservationRepository.existsByFlightIdAndSeatNumber(request.getFlightId(), request.getSeatNumber())) {
-            throw new RuntimeException("This seat is occupied on that flight!");
+            throw new ConflictException("This seat is occupied on that flight!");
         }
 
         Long userId = (Long) authentication.getCredentials();
@@ -53,7 +57,7 @@ public class ReservationService {
 
         Reservation reservation = reservationRepository
                 .findByIdAndUserId(reservationId, userId)
-                .orElseThrow(() -> new RuntimeException("Reservation not found or you don't have permission!"));
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found or you don't have permission!"));
 
 
         reservation.setStatus(ReservationStatus.CANCELED);
@@ -63,7 +67,33 @@ public class ReservationService {
         return reservationMapper.toResponse(saved);
     }
 
-    //TODO:ADMİN SİLMESİ YAP.
+    public List<ReservationResponse> getMyReservations() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        Long userId = (Long) authentication.getCredentials();
+
+        return reservationRepository.findAllByUserId(userId)
+                .stream()
+                .map(reservationMapper::toResponse)
+                .toList();
+    }
+
+    public List<ReservationResponse> getAllReservations() {
+        return reservationRepository.findAll()
+                .stream()
+                .map(reservationMapper::toResponse)
+                .toList();
+    }
+
+    public ReservationResponse adminCancelReservation(Long reservationId) {
+        Reservation reservation = reservationRepository.findById(reservationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Reservation not found!"));
+
+        reservation.setStatus(ReservationStatus.CANCELED);
+
+        Reservation saved = reservationRepository.save(reservation);
+        return reservationMapper.toResponse(saved);
+    }
+    
 }
 
 

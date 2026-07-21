@@ -6,6 +6,8 @@ import com.frsystem.dto.auth.LoginResponse;
 import com.frsystem.dto.auth.RegisterRequest;
 import com.frsystem.dto.auth.RegisterResponse;
 import com.frsystem.enums.UserRoles;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.UnauthorizedException;
 import com.frsystem.mapper.AuthMapper;
 import com.frsystem.model.User;
 import com.frsystem.repository.UserRepository;
@@ -39,7 +41,7 @@ public class AuthService {
 
 
         if (userRepository.findByEmail(passengerForRegister.getEmail()).isPresent()) {
-            throw new RuntimeException("There is an existing passenger with the same email!");
+            throw new ConflictException("There is an existing passenger with the same email!");
         }
 
         passengerForRegister.setRole(UserRoles.PASSENGER);
@@ -52,7 +54,7 @@ public class AuthService {
         adminForRegister.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         if (userRepository.findByEmail(adminForRegister.getEmail()).isPresent()) {
-            throw new RuntimeException("There is an existing admin with the same email!");
+            throw new ConflictException("There is an existing admin with the same email!");
         }
 
         adminForRegister.setRole(UserRoles.ADMIN);
@@ -62,10 +64,10 @@ public class AuthService {
 
     public LoginResponse login(@Valid LoginRequest request) {
         User user = userRepository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+                .orElseThrow(() -> new UnauthorizedException("User not found!"));
 
         if (!passwordEncoder.matches(request.getPassword(), user.getPasswordHash())) {
-            throw new RuntimeException("Invalid password!");
+            throw new UnauthorizedException("Invalid password!");
         }
 
 
