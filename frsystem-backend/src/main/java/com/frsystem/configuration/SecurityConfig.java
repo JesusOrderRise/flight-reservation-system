@@ -35,7 +35,10 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/auth/login").permitAll()
                         .requestMatchers("/api/v1/auth/admin-register").hasAuthority("ADMIN")
 
-                        // TODO: PASSENGERA READ ONLY
+                        // PASSENGER READ ONLY
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/airplanes/**", "/api/v1/airports/**").authenticated()
+
+                        //ADMIN CAN REACH OTHER METHODS (PUT, DELETE, POST)
                         .requestMatchers("/api/v1/airplanes/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/airports/**").hasAuthority("ADMIN")
 
@@ -44,7 +47,10 @@ public class SecurityConfig {
                         .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/flights/search").permitAll()
                         .requestMatchers("/api/v1/flights/**").hasAuthority("ADMIN")
 
-                        // Reservation Management:
+                        // Reservation Management
+                        .requestMatchers(org.springframework.http.HttpMethod.PATCH, "/api/v1/reservations/*/admin-cancel").hasAuthority("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/reservations").hasAuthority("ADMIN")
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/reservations/me").authenticated()
                         .requestMatchers("/api/v1/reservations/**").authenticated()
 
                         // Swagger

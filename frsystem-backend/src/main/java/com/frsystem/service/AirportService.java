@@ -2,6 +2,8 @@ package com.frsystem.service;
 
 import com.frsystem.dto.AirportRequest;
 import com.frsystem.dto.AirportResponse;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.mapper.AirportMapper;
 import com.frsystem.model.Airport;
 import com.frsystem.repository.AirportRepository;
@@ -36,7 +38,7 @@ public class AirportService {
     //Delete using the ID, with validation of if it exists.
     public void deleteAirportByID(Long ID) {
         Airport existing = airportRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no Airport with this ID!"));
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Airport with this ID!"));
         airportRepository.delete(existing);
     }
 
@@ -63,7 +65,7 @@ public class AirportService {
         Airport airport = airportMapper.toEntity(request);
 
         if (airportRepository.findByIataCode(airport.getIataCode()).isPresent()) {
-            throw new RuntimeException("There is an existing airplane with the same Iata Code!");
+            throw new ConflictException("There is an existing airplane with the same Iata Code!");
         }
 
 
@@ -71,21 +73,23 @@ public class AirportService {
     }
 
     //Finding by ID.
-    public Optional<AirportResponse> findByID(Long ID) {
-        return airportRepository.findById(ID).map(airportMapper::toResponse);
+    public AirportResponse findByID(Long ID) {
+        return airportRepository.findById(ID)
+                .map(airportMapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Airport with this ID!"));
     }
 
     //Updating Airport with new data. All the values should be given.
     public AirportResponse updateAirportByID(Long ID, @Valid AirportRequest newData) {
 
         Airport existing = airportRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no Airport with this ID!"));
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Airport with this ID!"));
 
         if (!existing.getIataCode().equals(newData.getIataCode())) {
             Optional<Airport> airportWithSameIata = airportRepository.findByIataCode(newData.getIataCode());
 
             if (airportWithSameIata.isPresent()) {
-                throw new RuntimeException("There is an existing airport with the same IATA!");
+                throw new ConflictException("There is an existing airport with the same IATA!");
             }
         }
 

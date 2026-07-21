@@ -2,6 +2,8 @@ package com.frsystem.service;
 
 import com.frsystem.dto.AirplaneRequest;
 import com.frsystem.dto.AirplaneResponse;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.mapper.AirplaneMapper;
 import com.frsystem.model.Airplane;
 import com.frsystem.repository.AirplaneRepository;
@@ -36,7 +38,7 @@ public class AirplaneService {
     //Delete using the ID, with validation of if it exists.
     public void deleteAirplaneByID(Long ID) {
         Airplane existing = airplaneRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no Airplane with this ID!"));
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Airplane with this ID!"));
         airplaneRepository.delete(existing);
     }
 
@@ -63,7 +65,7 @@ public class AirplaneService {
         Airplane airplane = airplaneMapper.toEntity(request);
 
         if (airplaneRepository.findByTailNumber(airplane.getTailNumber()).isPresent()) {
-            throw new RuntimeException("There is an existing airplane with the same Tail Number!");
+            throw new ConflictException("There is an existing airplane with the same Tail Number!");
         }
 
 
@@ -71,22 +73,24 @@ public class AirplaneService {
     }
 
     //Finding by ID.
-    public Optional<AirplaneResponse> findByID(Long ID) {
-        return airplaneRepository.findById(ID).map(airplaneMapper::toResponse);
+    public AirplaneResponse findByID(Long ID) {
+        return airplaneRepository.findById(ID)
+                .map(airplaneMapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Airplane with this ID!"));
     }
 
 
     //Updating Airplane with new data. All the values should be given
     public AirplaneResponse updateAirplaneByID(Long ID, @Valid AirplaneRequest newData) {
         Airplane existing = airplaneRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no Airplane with this ID!"));
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Airplane with this ID!"));
 
 
         if (!existing.getTailNumber().equals(newData.getTailNumber())) {
             Optional<Airplane> airplaneWithSameTail = airplaneRepository.findByTailNumber(newData.getTailNumber());
 
             if (airplaneWithSameTail.isPresent()) {
-                throw new RuntimeException("There is an existing airplane with the same Tail Number!");
+                throw new ConflictException("There is an existing airplane with the same Tail Number!");
             }
         }
 

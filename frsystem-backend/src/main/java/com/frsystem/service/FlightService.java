@@ -3,6 +3,8 @@ package com.frsystem.service;
 import com.frsystem.dto.FlightRequest;
 import com.frsystem.dto.FlightResponse;
 import com.frsystem.enums.FlightStatus;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.mapper.FlightMapper;
 import com.frsystem.model.Flight;
 import com.frsystem.repository.FlightRepository;
@@ -41,7 +43,7 @@ public class FlightService {
 
         //TODO: BU VE DİĞER SERVİSLER İÇİN ARAMAK YERİNE REPOSİTORYDE EXİSTSBY TANIMLAYIP ONU KULLANABİLİRSİN.
         if (flightRepository.findByFlightNumber(flight.getFlightNumber()).isPresent()) {
-            throw new RuntimeException("There is an already existing flight with same flight number!");
+            throw new ConflictException("There is an already existing flight with same flight number!");
         }
 
 
@@ -66,7 +68,7 @@ public class FlightService {
     //TRANSACTIONAL OLABİLİR Mİ???
     public FlightResponse updateFlightStatus(Long ID, FlightStatus newStatus) {
         Flight existing = flightRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no Flight with this ID!"));
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Flight with this ID!"));
 
 
         existing.setLastUpdate(Instant.now());
@@ -77,7 +79,7 @@ public class FlightService {
 
     public void deleteFlightByID(Long ID) {
         Flight existing = flightRepository.findById(ID)
-                .orElseThrow(() -> new RuntimeException("There is no Flight with this ID!"));
+                .orElseThrow(() -> new ResourceNotFoundException("There is no Flight with this ID!"));
         flightRepository.delete(existing);
     }
 }

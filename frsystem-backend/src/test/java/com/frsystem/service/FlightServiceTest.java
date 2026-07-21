@@ -2,6 +2,8 @@ package com.frsystem.service;
 
 import com.frsystem.dto.*;
 import com.frsystem.enums.FlightStatus;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.repository.FlightRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
@@ -164,7 +166,7 @@ public class FlightServiceTest {
 
         flightService.saveFlight(new FlightRequest("TC123", testAirplane.getId(), testDepartureAirport.getId(), testArrivalAirport.getId(), now.plusDays(10), now.plusDays(11)));
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             flightService.saveFlight(new FlightRequest("TC123", testAirplane.getId(), testDepartureAirport.getId(), testArrivalAirport.getId(), now.plusDays(10), now.plusDays(11)));
         });
 
@@ -265,7 +267,7 @@ public class FlightServiceTest {
         FlightResponse saved1 = flightService.saveFlight(new FlightRequest("TC123", testAirplane1.getId(), testDepartureAirport.getId(), testArrivalAirport.getId(), now.plusDays(10), now.plusDays(11)));
         Long updateId = saved1.getId();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
             flightService.updateFlightStatus(updateId + 1, FlightStatus.CANCELLED);
         });
 
@@ -303,7 +305,7 @@ public class FlightServiceTest {
         FlightResponse saved1 = flightService.saveFlight(new FlightRequest("TC123", testAirplane1.getId(), testDepartureAirport.getId(), testArrivalAirport.getId(), now.plusDays(10), now.plusDays(11)));
         Long deleteId = saved1.getId();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
             flightService.deleteFlightByID(deleteId + 1);
         });
 

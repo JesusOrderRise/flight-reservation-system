@@ -2,6 +2,8 @@ package com.frsystem.service;
 
 import com.frsystem.dto.AirplaneRequest;
 import com.frsystem.dto.AirplaneResponse;
+import com.frsystem.exception.ConflictException;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.repository.AirplaneRepository;
 import jakarta.transaction.Transactional;
 import jakarta.validation.ConstraintViolationException;
@@ -14,7 +16,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -84,7 +85,7 @@ public class AirplaneServiceTest {
 
         airplaneService.saveAirplane(airplane);
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             airplaneService.saveAirplane(airplane1);
         });
 
@@ -110,7 +111,7 @@ public class AirplaneServiceTest {
         AirplaneResponse savedAirplane = airplaneService.saveAirplane(airplane);
         Long ID = savedAirplane.getId();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
             airplaneService.deleteAirplaneByID(ID + 1);
         });
 
@@ -129,7 +130,7 @@ public class AirplaneServiceTest {
         String searchedTailNumber = savedAirplane.getTailNumber();  // ← AYNI KAYITTAN AL!
 
 
-        AirplaneResponse foundEntity = airplaneService.findByID(searchedID).get();
+        AirplaneResponse foundEntity = airplaneService.findByID(searchedID);
 
 
         assertEquals(searchedID, foundEntity.getId());
@@ -140,12 +141,15 @@ public class AirplaneServiceTest {
     }
 
     @Test
-    void shouldReturnEmptyWhenNonExistingIdSearched() {
+    void shouldThrowExceptionWhenNonExistingIdSearched() {
         AirplaneRequest existingAirplane = new AirplaneRequest("TC-123", "THY", "Boeing", 200);
         AirplaneResponse savedAirplane = airplaneService.saveAirplane(existingAirplane);
 
-        assertFalse(airplaneService.findByID(savedAirplane.getId() + 1).isPresent());
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            airplaneService.findByID(savedAirplane.getId() + 1);
+        });
 
+        assertEquals("There is no Airplane with this ID!", exception.getMessage());
     }
 
     @Test
@@ -194,7 +198,7 @@ public class AirplaneServiceTest {
 
         Long wrongSearchID = savedAirplane.getId();
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
             airplaneService.updateAirplaneByID(wrongSearchID + 1, updateRequest);
         });
 
@@ -225,12 +229,12 @@ public class AirplaneServiceTest {
         AirplaneRequest updateRequest = new AirplaneRequest("TC-1071", "AJet", "A-10", 20);
         airplaneService.updateAirplaneByID(savedID, updateRequest);
 
-        Optional<AirplaneResponse> afterUpdateObject = airplaneService.findByID(savedID);
+        AirplaneResponse afterUpdateObject = airplaneService.findByID(savedID);
 
-        assertEquals(updateRequest.getTailNumber(), afterUpdateObject.get().getTailNumber());
-        assertEquals(updateRequest.getAirline(), afterUpdateObject.get().getAirline());
-        assertEquals(updateRequest.getModel(), afterUpdateObject.get().getModel());
-        assertEquals(updateRequest.getCapacity(), afterUpdateObject.get().getCapacity());
+        assertEquals(updateRequest.getTailNumber(), afterUpdateObject.getTailNumber());
+        assertEquals(updateRequest.getAirline(), afterUpdateObject.getAirline());
+        assertEquals(updateRequest.getModel(), afterUpdateObject.getModel());
+        assertEquals(updateRequest.getCapacity(), afterUpdateObject.getCapacity());
 
     }
 
@@ -244,7 +248,7 @@ public class AirplaneServiceTest {
         Long ID = savedAirplaneForUpdate.getId();
 
         AirplaneRequest updateRequest = new AirplaneRequest("TC-1923", "AJet", "A-10", 20);
-        Exception exception = assertThrows(RuntimeException.class, () -> {
+        Exception exception = assertThrows(ConflictException.class, () -> {
             airplaneService.updateAirplaneByID(ID, updateRequest);
         });
 
