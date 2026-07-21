@@ -59,7 +59,7 @@ public class ReservationService {
 
     }
 
-    //TODO: TESTLERİ TEKRAR YAZ.
+    //TODO: CANCEL OLAN BIR REZERVASYONU TEKRAR CANCEL ETMESI ÖNLENMELİ Mİ? (CONFLICT ERROR.)
     public ReservationResponse cancelSelfReservation(Long reservationId) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

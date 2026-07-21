@@ -2,6 +2,7 @@ package com.frsystem.mapper;
 
 import com.frsystem.dto.ReservationRequest;
 import com.frsystem.dto.ReservationResponse;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.model.Flight;
 import com.frsystem.model.Reservation;
 import com.frsystem.repository.FlightRepository;
@@ -16,7 +17,8 @@ public abstract class ReservationMapper {
     protected FlightRepository flightRepository;
 
     protected Flight flightMap(Long value) {
-        return flightRepository.findById(value).get();
+        return flightRepository.findById(value)
+                .orElseThrow(() -> new ResourceNotFoundException("Flight not found!"));
     }
 
 
