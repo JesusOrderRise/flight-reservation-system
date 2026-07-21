@@ -10,7 +10,6 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface AirportMapper {
 
-    AirportRequest toRequest(Airport airport);
 
     AirportResponse toResponse(Airport airport);
 
@@ -19,4 +18,6 @@ public interface AirportMapper {
 
     @Mapping(target = "id", ignore = true)
     Airport updateEntity(@MappingTarget Airport existing, AirportRequest request);
+
+
 }

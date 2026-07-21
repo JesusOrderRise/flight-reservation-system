@@ -29,6 +29,8 @@ public class AirplaneServiceTest {
     @Autowired
     private AirplaneRepository airplaneRepository;
 
+
+    //kalkabilir?????
     @AfterEach
     void tearDown() {
         airplaneRepository.deleteAll();
@@ -201,7 +203,7 @@ public class AirplaneServiceTest {
 
     @ParameterizedTest
     @MethodSource("provideInvalidAirplanes")
-    void shouldThrowExceptionWhenUpdateBodyVioletesValidation(AirplaneRequest invalidRequest) {
+    void shouldThrowExceptionWhenUpdateBodyViolatesValidation(AirplaneRequest invalidRequest) {
         AirplaneRequest airplane = new AirplaneRequest("TC-1071", "AJet", "A-10", 20);
         AirplaneResponse savedAirplane = airplaneService.saveAirplane(airplane);
         Long savedID = savedAirplane.getId();

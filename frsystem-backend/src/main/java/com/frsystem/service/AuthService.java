@@ -1,12 +1,12 @@
 package com.frsystem.service;
 
 
-import com.frsystem.dto.user.LoginRequest;
-import com.frsystem.dto.user.LoginResponse;
-import com.frsystem.dto.user.RegisterRequest;
-import com.frsystem.dto.user.RegisterResponse;
+import com.frsystem.dto.auth.LoginRequest;
+import com.frsystem.dto.auth.LoginResponse;
+import com.frsystem.dto.auth.RegisterRequest;
+import com.frsystem.dto.auth.RegisterResponse;
 import com.frsystem.enums.UserRoles;
-import com.frsystem.mapper.UserMapper;
+import com.frsystem.mapper.AuthMapper;
 import com.frsystem.model.User;
 import com.frsystem.repository.UserRepository;
 import com.frsystem.security.JwtTokenProvider;
@@ -24,7 +24,7 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private UserMapper userMapper;
+    private AuthMapper authMapper;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -34,7 +34,7 @@ public class AuthService {
 
 
     public RegisterResponse registerPassenger(@Valid RegisterRequest request) {
-        User passengerForRegister = userMapper.toUser(request);
+        User passengerForRegister = authMapper.toUser(request);
         passengerForRegister.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
 
@@ -44,11 +44,11 @@ public class AuthService {
 
         passengerForRegister.setRole(UserRoles.PASSENGER);
 
-        return userMapper.toRegisterResponse(userRepository.save(passengerForRegister));
+        return authMapper.toRegisterResponse(userRepository.save(passengerForRegister));
     }
 
     public RegisterResponse registerAdmin(@Valid RegisterRequest request) {
-        User adminForRegister = userMapper.toUser(request);
+        User adminForRegister = authMapper.toUser(request);
         adminForRegister.setPasswordHash(passwordEncoder.encode(request.getPassword()));
 
         if (userRepository.findByEmail(adminForRegister.getEmail()).isPresent()) {
@@ -57,7 +57,7 @@ public class AuthService {
 
         adminForRegister.setRole(UserRoles.ADMIN);
 
-        return userMapper.toRegisterResponse(userRepository.save(adminForRegister));
+        return authMapper.toRegisterResponse(userRepository.save(adminForRegister));
     }
 
     public LoginResponse login(@Valid LoginRequest request) {
@@ -69,7 +69,7 @@ public class AuthService {
         }
 
 
-        LoginResponse response = userMapper.toLoginResponse(user);
+        LoginResponse response = authMapper.toLoginResponse(user);
         response.setToken(jwtTokenProvider.generateToken(user));
 
         return response;

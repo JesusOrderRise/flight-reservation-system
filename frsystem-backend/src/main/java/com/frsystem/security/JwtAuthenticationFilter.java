@@ -31,19 +31,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             try {
-
                 String email = jwtTokenProvider.extractEmail(token);
                 String role = jwtTokenProvider.extractRole(token);
-
+                Long userId = jwtTokenProvider.extractUserId(token);
 
                 if (email != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     var authorities = Collections.singletonList(new SimpleGrantedAuthority(role));
-                    var authToken = new UsernamePasswordAuthenticationToken(email, null, authorities);
+
+                    // Email as principal, userId as credential
+                    var authToken = new UsernamePasswordAuthenticationToken(email, userId, authorities);
 
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             } catch (Exception e) {
-
                 System.out.println("Token invalid: " + e.getMessage());
             }
         }

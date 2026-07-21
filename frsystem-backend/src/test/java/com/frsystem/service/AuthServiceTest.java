@@ -1,10 +1,10 @@
 package com.frsystem.service;
 
 
-import com.frsystem.dto.user.LoginRequest;
-import com.frsystem.dto.user.LoginResponse;
-import com.frsystem.dto.user.RegisterRequest;
-import com.frsystem.dto.user.RegisterResponse;
+import com.frsystem.dto.auth.LoginRequest;
+import com.frsystem.dto.auth.LoginResponse;
+import com.frsystem.dto.auth.RegisterRequest;
+import com.frsystem.dto.auth.RegisterResponse;
 import com.frsystem.enums.UserRoles;
 import com.frsystem.model.User;
 import com.frsystem.repository.UserRepository;
@@ -27,7 +27,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-public class UserServiceTest {
+public class AuthServiceTest {
 
     @Autowired
     private AuthService userService;
