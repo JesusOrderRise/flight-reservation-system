@@ -268,7 +268,7 @@ public class FlightServiceTest {
         Long updateId = saved1.getId();
 
         Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
-            flightService.updateFlightStatus(updateId + 1, FlightStatus.CANCELLED);
+            flightService.updateFlightStatus(updateId + 1, FlightStatus.CANCELED);
         });
 
         assertEquals("There is no Flight with this ID!", exception.getMessage());
@@ -286,10 +286,10 @@ public class FlightServiceTest {
         Long updateId = saved1.getId();
 
 
-        FlightResponse updatedFlight = flightService.updateFlightStatus(updateId, FlightStatus.CANCELLED);
+        FlightResponse updatedFlight = flightService.updateFlightStatus(updateId, FlightStatus.CANCELED);
 
 
-        assertEquals(FlightStatus.CANCELLED, updatedFlight.getStatus());
+        assertEquals(FlightStatus.CANCELED, updatedFlight.getStatus());
         assertNotEquals(updatedFlight.getLastUpdate(), saved1.getLastUpdate());
 
     }
@@ -332,6 +332,60 @@ public class FlightServiceTest {
 
         assertFalse(flightRepository.existsById(deleteId));
 
+    }
+
+    @Test
+    void shouldThrowExceptionWhenDepartureAirportDoesNotExist() {
+        AirplaneResponse airplane = createTestAirplane();
+        AirportResponse arrivalAirport = createTestArrivalAirport();
+        LocalDateTime now = LocalDateTime.now();
+
+        FlightRequest request = new FlightRequest(
+                "TC123", airplane.getId(), 999999L, arrivalAirport.getId(),
+                now.plusDays(10), now.plusDays(11)
+        );
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            flightService.saveFlight(request);
+        });
+
+        assertEquals("Airport not found!", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenArrivalAirportDoesNotExist() {
+        AirplaneResponse airplane = createTestAirplane();
+        AirportResponse departureAirport = createTestDepartureAirport();
+        LocalDateTime now = LocalDateTime.now();
+
+        FlightRequest request = new FlightRequest(
+                "TC123", airplane.getId(), departureAirport.getId(), 999999L,
+                now.plusDays(10), now.plusDays(11)
+        );
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            flightService.saveFlight(request);
+        });
+
+        assertEquals("Airport not found!", exception.getMessage());
+    }
+
+    @Test
+    void shouldThrowExceptionWhenAirplaneDoesNotExist() {
+        AirportResponse departureAirport = createTestDepartureAirport();
+        AirportResponse arrivalAirport = createTestArrivalAirport();
+        LocalDateTime now = LocalDateTime.now();
+
+        FlightRequest request = new FlightRequest(
+                "TC123", 999999L, departureAirport.getId(), arrivalAirport.getId(),
+                now.plusDays(10), now.plusDays(11)
+        );
+
+        Exception exception = assertThrows(ResourceNotFoundException.class, () -> {
+            flightService.saveFlight(request);
+        });
+
+        assertEquals("Airplane not found!", exception.getMessage());
     }
 
 }
