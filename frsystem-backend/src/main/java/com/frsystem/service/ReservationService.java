@@ -31,6 +31,9 @@ public class ReservationService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     public ReservationResponse makeReservation(@Valid ReservationRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -44,7 +47,15 @@ public class ReservationService {
         newReservation.setUser(userRepository.findById(userId).get());
         newReservation.setStatus(ReservationStatus.CONFIRMED);
 
-        return reservationMapper.toResponse(reservationRepository.save(newReservation));
+        Reservation saved = reservationRepository.save(newReservation);
+
+        emailService.sendReservationConfirmation(
+                saved.getUser().getEmail(),
+                saved.getSeatNumber(),
+                saved.getFlight().getId()
+        );
+
+        return reservationMapper.toResponse(saved);
 
     }
 
