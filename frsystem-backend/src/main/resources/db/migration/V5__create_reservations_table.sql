@@ -1,4 +1,4 @@
-CREATE TYPE reservation_status AS ENUM ('CONFIRMED', 'CANCELLED');
+CREATE TYPE reservation_status AS ENUM ('CONFIRMED', 'CANCELED');
 
 
 CREATE TABLE IF NOT EXISTS reservation (

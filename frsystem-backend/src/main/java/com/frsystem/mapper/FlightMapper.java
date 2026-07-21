@@ -2,6 +2,7 @@ package com.frsystem.mapper;
 
 import com.frsystem.dto.FlightRequest;
 import com.frsystem.dto.FlightResponse;
+import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.model.Airplane;
 import com.frsystem.model.Airport;
 import com.frsystem.model.Flight;
@@ -20,17 +21,17 @@ public abstract class FlightMapper {
     @Autowired
     protected AirportRepository airportRepository;
 
-    // ✅ Long → Airport
     protected Airport airportMap(Long value) {
         if (value == null) return null;
-        return airportRepository.findById(value).get();
+        return airportRepository.findById(value)
+                .orElseThrow(() -> new ResourceNotFoundException("Airport not found!"));
     }
 
 
     protected Airplane airplaneMap(Long value) {
         if (value == null) return null;
-        return airplaneRepository.findById(value).get();
-
+        return airplaneRepository.findById(value)
+                .orElseThrow(() -> new ResourceNotFoundException("Airplane not found!"));
     }
 
 
@@ -44,6 +45,6 @@ public abstract class FlightMapper {
 
 
     public abstract FlightResponse toResponse(Flight flight);
-    
+
 
 }
