@@ -1,4 +1,10 @@
 services:
+  mailhog:
+    image: mailhog/mailhog:latest
+    container_name: frsystem_mailhog
+    ports:
+      - "${MAILHOG_SMTP_PORT}:1025"  
+      - "${MAILHOG_WEB_PORT}:8025"  
   postgres:
     image: postgres:latest
     container_name: frsystem-postgres

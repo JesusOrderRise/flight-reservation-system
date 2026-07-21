@@ -17,7 +17,14 @@ spring:
     baseline-on-migrate: true
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
+  mail:
+    host: ${MAILHOG_HOST}
+    port: ${MAILHOG_SMTP_PORT}
 
+mailhog:
+  web:
+    host: ${MAILHOG_HOST}
+    port: ${MAILHOG_WEB_PORT}
 jwt:
   secret: ${JWT_SECRET}
-  expiration: 3600000
+  expiration: ${JWT_EXPIRATION}

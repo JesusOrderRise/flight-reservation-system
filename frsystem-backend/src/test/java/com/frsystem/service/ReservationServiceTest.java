@@ -139,4 +139,6 @@ public class ReservationServiceTest {
         assertEquals("This seat is occupied on that flight!", exception.getMessage());
 
     }
+
+
 }

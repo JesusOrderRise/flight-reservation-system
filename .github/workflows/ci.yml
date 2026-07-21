@@ -24,6 +24,11 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
+      mailhog:
+        image: mailhog/mailhog:latest
+        ports:
+          - 1025:1025
+          - 8025:8025
 
     defaults:
       run:
@@ -51,4 +56,7 @@ jobs:
           POSTGRES_DB: frsdbtest
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres123
+          MAILHOG_HOST: localhost
+          MAILHOG_SMTP_PORT: 1025
+          MAILHOG_WEB_PORT: 8025
         run: ./mvnw -B clean verify
