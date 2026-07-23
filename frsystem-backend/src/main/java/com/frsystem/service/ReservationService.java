@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -37,17 +38,37 @@ public class ReservationService {
     public ReservationResponse makeReservation(@Valid ReservationRequest request) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (reservationRepository.existsByFlightIdAndSeatNumber(request.getFlightId(), request.getSeatNumber())) {
-            throw new ConflictException("This seat is occupied on that flight!");
-        }
-
         Long userId = (Long) authentication.getCredentials();
 
-        Reservation newReservation = reservationMapper.toEntity(request);
-        newReservation.setUser(userRepository.findById(userId).get());
-        newReservation.setStatus(ReservationStatus.CONFIRMED);
 
-        Reservation saved = reservationRepository.save(newReservation);
+        Optional<Reservation> existingReservationOpt = reservationRepository
+                .findByFlightIdAndSeatNumber(request.getFlightId(), request.getSeatNumber());
+
+        Reservation reservationToSave;
+
+        if (existingReservationOpt.isPresent()) {
+            Reservation existingReservation = existingReservationOpt.get();
+
+
+            if (existingReservation.getStatus() == ReservationStatus.CONFIRMED) {
+                throw new ConflictException("This seat is occupied on that flight!");
+            }
+
+
+            existingReservation.setUser(userRepository.findById(userId).orElseThrow());
+            existingReservation.setStatus(ReservationStatus.CONFIRMED);
+
+            reservationToSave = existingReservation;
+
+        } else {
+
+            reservationToSave = reservationMapper.toEntity(request);
+            reservationToSave.setUser(userRepository.findById(userId).orElseThrow());
+            reservationToSave.setStatus(ReservationStatus.CONFIRMED);
+        }
+
+
+        Reservation saved = reservationRepository.save(reservationToSave);
 
         emailService.sendReservationConfirmation(
                 saved.getUser().getEmail(),
@@ -56,7 +77,6 @@ public class ReservationService {
         );
 
         return reservationMapper.toResponse(saved);
-
     }
 
     //TODO: CANCEL OLAN BIR REZERVASYONU TEKRAR CANCEL ETMESI ÖNLENMELİ Mİ? (CONFLICT ERROR.)

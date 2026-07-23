@@ -1,5 +1,6 @@
 package com.frsystem.service;
 
+import com.frsystem.config.AbstractIntegrationTest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,7 +13,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class EmailServiceTest {
+public class EmailServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private EmailService emailService;

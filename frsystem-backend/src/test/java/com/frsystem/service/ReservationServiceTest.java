@@ -1,5 +1,6 @@
 package com.frsystem.service;
 
+import com.frsystem.config.AbstractIntegrationTest;
 import com.frsystem.dto.*;
 import com.frsystem.dto.auth.LoginRequest;
 import com.frsystem.dto.auth.LoginResponse;
@@ -32,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-public class ReservationServiceTest {
+public class ReservationServiceTest extends AbstractIntegrationTest {
     @Autowired
     ReservationService reservationService;
 

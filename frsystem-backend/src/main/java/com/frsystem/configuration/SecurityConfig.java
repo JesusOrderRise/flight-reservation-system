@@ -31,9 +31,9 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         // Auth endpoints
-                        .requestMatchers("/api/v1/auth/register").permitAll()
+                        .requestMatchers("/api/v1/auth/register/passenger").permitAll()
                         .requestMatchers("/api/v1/auth/login").permitAll()
-                        .requestMatchers("/api/v1/auth/admin-register").hasAuthority("ADMIN")
+                        .requestMatchers("/api/v1/auth/register/admin").hasAuthority("ADMIN")
 
                         // PASSENGER READ ONLY
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/airplanes/**", "/api/v1/airports/**").authenticated()
