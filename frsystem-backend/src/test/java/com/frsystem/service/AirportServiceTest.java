@@ -1,5 +1,6 @@
 package com.frsystem.service;
 
+import com.frsystem.config.AbstractIntegrationTest;
 import com.frsystem.dto.AirportRequest;
 import com.frsystem.dto.AirportResponse;
 import com.frsystem.exception.ConflictException;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-public class AirportServiceTest {
+public class AirportServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private AirportService airportService;
@@ -252,5 +253,3 @@ public class AirportServiceTest {
 
     }
 }
-
-

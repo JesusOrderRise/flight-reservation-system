@@ -12,6 +12,8 @@ import java.util.Optional;
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
     boolean existsByFlightIdAndSeatNumber(Long flightId, String seatNumber);
 
+    Optional<Reservation> findByFlightIdAndSeatNumber(Long flightId, String seatNumber);
+
     Optional<Reservation> findByIdAndUserId(Long reservationId, Long userId);
 
     List<Reservation> findAllByUserId(Long userId);

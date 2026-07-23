@@ -1,5 +1,6 @@
 package com.frsystem.service;
 
+import com.frsystem.config.AbstractIntegrationTest;
 import com.frsystem.dto.AirplaneRequest;
 import com.frsystem.dto.AirplaneResponse;
 import com.frsystem.exception.ConflictException;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-public class AirplaneServiceTest {
+public class AirplaneServiceTest extends AbstractIntegrationTest {
 
     @Autowired
     private AirplaneService airplaneService;
@@ -257,6 +258,3 @@ public class AirplaneServiceTest {
 
     }
 }
-
-
-

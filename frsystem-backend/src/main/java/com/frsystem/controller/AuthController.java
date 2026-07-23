@@ -21,12 +21,12 @@ public class AuthController {
     @Autowired
     private AuthService authService;
 
-    @PostMapping(path = "/register")
+    @PostMapping(path = "/register/passenger")
     public RegisterResponse passengerRegister(@Valid @RequestBody RegisterRequest request) {
         return authService.registerPassenger(request);
     }
 
-    @PostMapping(path = "/admin-register")
+    @PostMapping(path = "/register/admin")
     public RegisterResponse adminRegister(@Valid @RequestBody RegisterRequest request) {
         return authService.registerAdmin(request);
     }

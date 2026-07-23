@@ -1,5 +1,6 @@
 package com.frsystem.service;
 
+import com.frsystem.config.AbstractIntegrationTest;
 import com.frsystem.dto.*;
 import com.frsystem.enums.FlightStatus;
 import com.frsystem.exception.ConflictException;
@@ -23,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-public class FlightServiceTest {
+public class FlightServiceTest extends AbstractIntegrationTest {
 
     //TODO: YANLIŞ FORMAT TESTLERİ SERVİS TESTİ DEĞİL CONTROLLER(INTEGRATION) TESTİ OLACAK.
 
