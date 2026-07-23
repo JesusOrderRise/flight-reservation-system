@@ -10,10 +10,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: frsystem-backend
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -27,12 +23,11 @@ jobs:
           cache-dependency-path: frsystem-backend/pom.xml
 
       - name: Grant execute permission for mvnw
-        run: chmod +x mvnw
+        run: chmod +x frsystem-backend/mvnw
 
       - name: Build and run tests
-        run: ./mvnw -B clean verify
+        run: ./frsystem-backend/mvnw -B clean verify
 
-  
   build-and-push-docker:
     needs: build-and-test
     runs-on: ubuntu-latest
@@ -54,11 +49,10 @@ jobs:
           cache-dependency-path: frsystem-backend/pom.xml
 
       - name: Grant execute permission for mvnw
-        run: chmod +x mvnw
+        run: chmod +x frsystem-backend/mvnw
 
       - name: Build JAR (Skip tests since they already ran)
-        working-directory: frsystem-backend
-        run: ./mvnw -B package -DskipTests=true
+        run: ./frsystem-backend/mvnw -B package -DskipTests=true
 
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v3
@@ -79,7 +73,7 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
         with:
-          context: frsystem-backend 
+          context: frsystem-backend
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
