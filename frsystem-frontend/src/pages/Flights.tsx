@@ -41,18 +41,14 @@ const Flights: React.FC<FlightsProps> = ({ isAdmin }) => {
         }
     };
 
-    const fetchAirports = async () => {
-        try {
-            const data = await airportService.getAllAirports();
-            setAirports(data);
-        } catch (err) {
-            console.error("Airport fetch error:", err);
-        }
-    };
 
     useEffect(() => {
-        fetchAllFlights();
-        fetchAirports();
+        flightService.getAllFlights()
+                    .then(data => setFlights(data))
+                    .catch(err => console.error("Fetch error:", err));
+        airportService.getAllAirports()
+                    .then(data => setAirports(data))
+                    .catch(err => console.error("Fetch error:", err));
     }, []);
 
     const handleSearch = async (e: any) => {

@@ -41,7 +41,9 @@ const Airplanes: React.FC<AirplanesProps> = ({ isAdmin }) => {
 
     // Runs once when loaded
     useEffect(() => {
-        fetchAllAirplanes();
+        airplaneService.getAllAirplanes()
+            .then(data => setAirplanes(data))
+            .catch(err => console.error("Fetch error:", err));
     }, []);
 
     const searchAirplanes = async () => {

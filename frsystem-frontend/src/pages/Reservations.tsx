@@ -31,8 +31,8 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
     };
 
     useEffect(() => {
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         fetchReservations();
-        setSearchTerm('');
     }, [isAdmin, activeTab]);
 
     const handleCancel = async (id: number | string) => {
@@ -93,7 +93,11 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div className="flex gap-4">
                         <button 
-                            onClick={() => setActiveTab('MY_RESERVATIONS')}
+                            onClick={() => {
+                                setActiveTab('MY_RESERVATIONS');
+                                setSearchTerm('');
+                            }
+                            }
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
                                 ${activeTab === 'MY_RESERVATIONS' 
                                     ? 'bg-red-900 text-white border-red-900' 
@@ -103,7 +107,11 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                             My Reservations
                         </button>
                         <button 
-                            onClick={() => setActiveTab('ALL_RESERVATIONS')}
+                            onClick={() => {
+                                setActiveTab('ALL_RESERVATIONS')
+                                setSearchTerm('');
+                            }
+                            }
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
                                 ${activeTab === 'ALL_RESERVATIONS' 
                                     ? 'bg-red-900 text-white border-red-900' 

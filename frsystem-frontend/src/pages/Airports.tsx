@@ -41,7 +41,9 @@ const Airports: React.FC<AirportsProps> = ({ isAdmin }) => {
 
     // Runs once when loaded
     useEffect(() => {
-        fetchAllAirports();
+        airportService.getAllAirports()
+            .then(data => setAirports(data))
+            .catch(err => console.error("Fetch error:", err));
     }, []);
 
     const searchAirports = async () => {
