@@ -48,6 +48,12 @@ const Reserve: React.FC<ReserveProps> = ({ isOpen, onClose, onSuccess, flight })
         setSelectedSeat(seat);
     };
 
+    const handleCloseModal = () => {
+        setSelectedSeat('');
+        setOccupiedSeats([]);
+        onClose(); 
+    };
+
     const handleReserve = async () => {
         if (!selectedSeat) {
             toast.warning("Select a seat!");
@@ -64,6 +70,8 @@ const Reserve: React.FC<ReserveProps> = ({ isOpen, onClose, onSuccess, flight })
             await reservationService.createReservation(payload);
             
             toast.success(`Seat ${selectedSeat} has been reserved!`);
+            setSelectedSeat('');
+            setOccupiedSeats([]);
             onSuccess(); 
         } catch (error: any) {
             console.error("Reserve Error:", error);
@@ -94,9 +102,6 @@ const Reserve: React.FC<ReserveProps> = ({ isOpen, onClose, onSuccess, flight })
                 }
             };
             fetchOccupiedSeats();
-        } else {
-            setSelectedSeat('');
-            setOccupiedSeats([]);
         }
     }, [isOpen, flight]);
 
@@ -115,7 +120,7 @@ const Reserve: React.FC<ReserveProps> = ({ isOpen, onClose, onSuccess, flight })
                             {flight.departureAirport?.iataCode} ➔ {flight.arrivalAirport?.iataCode}
                         </p>
                     </div>
-                    <button onClick={onClose} className="text-red-200 hover:text-white text-3xl">&times;</button>
+                    <button onClick={handleCloseModal} className="text-red-200 hover:text-white text-3xl">&times;</button>
                 </div>
 
                 {/* SEATMAP */}

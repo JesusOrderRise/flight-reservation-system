@@ -41,7 +41,9 @@ const Airports: React.FC<AirportsProps> = ({ isAdmin }) => {
 
     // Runs once when loaded
     useEffect(() => {
-        fetchAllAirports();
+        airportService.getAllAirports()
+            .then(data => setAirports(data))
+            .catch(err => console.error("Fetch error:", err));
     }, []);
 
     const searchAirports = async () => {
@@ -102,9 +104,11 @@ const Airports: React.FC<AirportsProps> = ({ isAdmin }) => {
         } catch (error: any) {
             console.error("Deleting Error:", error);
             if (error.response && error.response.data) {
-                toast.error(error.response.data);
+                
+                const errorMsg = error.response.data.message || error.response.data;
+                toast.error(errorMsg);
             }
-        }
+            }
     };
 
     return (

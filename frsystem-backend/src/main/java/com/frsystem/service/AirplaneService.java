@@ -7,6 +7,7 @@ import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.mapper.AirplaneMapper;
 import com.frsystem.model.Airplane;
 import com.frsystem.repository.AirplaneRepository;
+import com.frsystem.repository.FlightRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -28,6 +29,9 @@ public class AirplaneService {
     @Autowired
     private AirplaneMapper airplaneMapper;
 
+    @Autowired
+    private FlightRepository flightRepository;
+
     public List<AirplaneResponse> getAll() {
         return airplaneRepository.findAll()
                 .stream()
@@ -39,6 +43,9 @@ public class AirplaneService {
     public void deleteAirplaneByID(Long ID) {
         Airplane existing = airplaneRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Airplane with this ID!"));
+        if (flightRepository.existsByAirplane(existing)) {
+            throw new ConflictException("This airplane is in a flight, first delete the flight.");
+        }
         airplaneRepository.delete(existing);
     }
 

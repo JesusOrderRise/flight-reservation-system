@@ -49,6 +49,17 @@ services:
     depends_on:
       - postgres
       - mailhog
+  frsystem-frontend:
+    build:
+      context: ./frsystem-frontend
+      dockerfile: Dockerfile
+    container_name: frsystem-frontend
+    ports:
+      - "${FRONTEND_PORT}:80"
+    depends_on:
+      - frsystem-backend   
+
+
 volumes:  
   postgres_data:
 

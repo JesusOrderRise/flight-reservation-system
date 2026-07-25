@@ -1,6 +1,6 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import { useAuth } from '../context/AuthContext'; 
 import api from '../services/Api';
 import { toast } from 'react-toastify';
 import logoImage from '../assets/logo.png';
@@ -13,9 +13,8 @@ const Login: React.FC = () => {
   const [firstName, setFirstName] = useState<string>(''); 
   const [lastName, setLastName] = useState<string>('');   
 
-  const { login } = useContext(AuthContext) as {
-    login: (token: string, role: string, firstName: string, lastName: string) => void;
-  };
+  
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: any) => {

@@ -7,6 +7,7 @@ import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.mapper.AirportMapper;
 import com.frsystem.model.Airport;
 import com.frsystem.repository.AirportRepository;
+import com.frsystem.repository.FlightRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -27,6 +28,9 @@ public class AirportService {
     @Autowired
     private AirportMapper airportMapper;
 
+    @Autowired
+    private FlightRepository flightRepository;
+
     //***************************Gerekli mi??????*******************
     public List<AirportResponse> getAll() {
         return airportRepository.findAll()
@@ -39,6 +43,10 @@ public class AirportService {
     public void deleteAirportByID(Long ID) {
         Airport existing = airportRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Airport with this ID!"));
+        if (flightRepository.existsByDepartureAirport(existing) || flightRepository.existsByArrivalAirport(existing)) {
+            throw new ConflictException("This airport is in a flight, first delete the flight.");
+        }
+
         airportRepository.delete(existing);
     }
 

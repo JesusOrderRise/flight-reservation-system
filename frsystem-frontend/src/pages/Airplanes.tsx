@@ -41,7 +41,9 @@ const Airplanes: React.FC<AirplanesProps> = ({ isAdmin }) => {
 
     // Runs once when loaded
     useEffect(() => {
-        fetchAllAirplanes();
+        airplaneService.getAllAirplanes()
+            .then(data => setAirplanes(data))
+            .catch(err => console.error("Fetch error:", err));
     }, []);
 
     const searchAirplanes = async () => {
@@ -99,12 +101,14 @@ const Airplanes: React.FC<AirplanesProps> = ({ isAdmin }) => {
             } else {
                 fetchAllAirplanes();
             }
-        } catch (error: any) {
-            console.error("Deleting Error:", error);
-            if (error.response && error.response.data) {
-                toast.error(error.response.data);
+            } catch (error: any) {
+                console.error("Deleting Error:", error);
+                if (error.response && error.response.data) {
+                    
+                    const errorMsg = error.response.data.message || error.response.data;
+                    toast.error(errorMsg);
             }
-        }
+            }
     };
 
     return (
