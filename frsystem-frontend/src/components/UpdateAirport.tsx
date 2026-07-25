@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type ChangeEvent } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import { airportService } from '../services/AirportService';
 
 interface UpdateAirportProps {
@@ -17,25 +17,25 @@ interface AirportFormData {
 
 const UpdateAirport: React.FC<UpdateAirportProps> = ({ isOpen, onClose, onSuccess, airport }) => {
     const [formData, setFormData] = useState<AirportFormData>({
-        iataCode: '',
-        name: '',
-        country: '',
-        city: ''
-    });
+    iataCode: airport?.iataCode || '',
+    name: airport?.name || '',
+    country: airport?.country || '',
+    city: airport?.city || ''
+});
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
-    // Fills form according to selected airport
-    useEffect(() => {
-        if (airport) {
-            setFormData({
-                iataCode: airport.iataCode || '',
-                name: airport.name || '',
-                country: airport.country || '',
-                city: airport.city || ''
-            });
-        }
-    }, [airport]);
+    const [prevAirportId, setPrevAirportId] = useState<string | null>(null);
+
+   if (airport && airport.id !== prevAirportId) {
+        setPrevAirportId(airport.id); 
+        setFormData({
+            iataCode: airport?.iataCode || '',
+            name: airport?.name || '',
+            country: airport?.country || '',
+            city: airport?.city || ''
+        });
+    }
 
     if (!isOpen) return null;
 

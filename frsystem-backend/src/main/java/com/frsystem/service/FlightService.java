@@ -3,11 +3,13 @@ package com.frsystem.service;
 import com.frsystem.dto.FlightRequest;
 import com.frsystem.dto.FlightResponse;
 import com.frsystem.enums.FlightStatus;
+import com.frsystem.enums.ReservationStatus;
 import com.frsystem.exception.ConflictException;
 import com.frsystem.exception.ResourceNotFoundException;
 import com.frsystem.mapper.FlightMapper;
 import com.frsystem.model.Flight;
 import com.frsystem.repository.FlightRepository;
+import com.frsystem.repository.ReservationRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -27,6 +29,9 @@ public class FlightService {
 
     @Autowired
     private FlightMapper flightMapper;
+
+    @Autowired
+    private ReservationRepository reservationRepository;
 
     public List<FlightResponse> getAll() {
         return flightRepository.findAll()
@@ -55,7 +60,8 @@ public class FlightService {
         Flight example = flightMapper.toEntity(request);
 
         ExampleMatcher matcher = ExampleMatcher.matching()
-                .withIgnoreNullValues();
+                .withIgnoreNullValues()
+                .withMatcher("flightNumber", ExampleMatcher.GenericPropertyMatchers.contains().ignoreCase());
 
 
         return flightRepository.findAll(Example.of(example, matcher)).stream()
@@ -78,6 +84,11 @@ public class FlightService {
     public void deleteFlightByID(Long ID) {
         Flight existing = flightRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Flight with this ID!"));
+        if (reservationRepository.existsByFlightAndStatus(existing, ReservationStatus.CONFIRMED)) {
+            throw new ConflictException("This flight has reservations, first cancel the reservations.");
+        }
+        reservationRepository.deleteByFlight(existing);
+        reservationRepository.flush();
         flightRepository.delete(existing);
     }
 }

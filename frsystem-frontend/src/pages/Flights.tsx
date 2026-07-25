@@ -41,18 +41,14 @@ const Flights: React.FC<FlightsProps> = ({ isAdmin }) => {
         }
     };
 
-    const fetchAirports = async () => {
-        try {
-            const data = await airportService.getAllAirports();
-            setAirports(data);
-        } catch (err) {
-            console.error("Airport fetch error:", err);
-        }
-    };
 
     useEffect(() => {
-        fetchAllFlights();
-        fetchAirports();
+        flightService.getAllFlights()
+                    .then(data => setFlights(data))
+                    .catch(err => console.error("Fetch error:", err));
+        airportService.getAllAirports()
+                    .then(data => setAirports(data))
+                    .catch(err => console.error("Fetch error:", err));
     }, []);
 
     const handleSearch = async (e: any) => {
@@ -105,9 +101,13 @@ const Flights: React.FC<FlightsProps> = ({ isAdmin }) => {
             toast.success("Flight has been deleted successfully!");
             fetchAllFlights();
         } catch (error: any) {
-            console.error("Delete Error:", error);
-            toast.error(error.response?.data || "Unexpected error!");
-        }
+            console.error("Deleting Error:", error);
+            if (error.response && error.response.data) {
+                
+                const errorMsg = error.response.data.message || error.response.data;
+                toast.error(errorMsg);
+            }
+            }
     };
 
     const getStatusStyle = (status: string) => {

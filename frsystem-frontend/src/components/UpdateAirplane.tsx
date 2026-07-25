@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type ChangeEvent } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import { airplaneService } from '../services/AirplaneService';
 
 interface UpdateAirplaneProps {
@@ -17,25 +17,27 @@ interface AirplaneFormData {
 
 const UpdateAirplane: React.FC<UpdateAirplaneProps> = ({ isOpen, onClose, onSuccess, airplane }) => {
     const [formData, setFormData] = useState<AirplaneFormData>({
-        tailNumber: '',
-        airline: '',
-        model: '',
-        capacity: ''
+        tailNumber: airplane?.tailNumber || '',
+        airline: airplane?.airline || '',
+        model: airplane?.model || '',
+        capacity: airplane?.capacity ? airplane.capacity.toString() : ''
     });
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string>('');
 
-    // Fills form according to selected airport
-    useEffect(() => {
-        if (airplane) {
-            setFormData({
-                tailNumber: airplane.tailNumber || '',
-                airline: airplane.airline || '',
-                model: airplane.model || '',
-                capacity: airplane.capacity ? airplane.capacity.toString() : ''
-            });
-        }
-    }, [airplane]);
+
+    const [prevAirplaneId, setPrevAirplaneId] = useState<string | null>(null);
+
+    
+    if (airplane && airplane.id !== prevAirplaneId) {
+        setPrevAirplaneId(airplane.id); 
+        setFormData({
+            tailNumber: airplane.tailNumber || '',
+            airline: airplane.airline || '',
+            model: airplane.model || '',
+            capacity: airplane.capacity ? airplane.capacity.toString() : ''
+        });
+    }
 
     if (!isOpen) return null;
 

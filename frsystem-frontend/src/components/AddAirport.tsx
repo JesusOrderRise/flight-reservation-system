@@ -85,7 +85,7 @@ const AddAirport: React.FC<AddAirportProps> = ({ isOpen, onClose, onSuccess }) =
                             name="iataCode"
                             value={formData.iataCode}
                             onChange={handleInputChange}
-                            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
+                            className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                             placeholder="e.g. IST"
                             maxLength={3}
                         />

@@ -8,36 +8,30 @@ interface ReservationsProps {
 
 const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
     const [reservations, setReservations] = useState<any[]>([]);
-    const [loading, setLoading] = useState<boolean>(false);
+    
+    const [loading, setLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>('MY_RESERVATIONS');
     const [searchTerm, setSearchTerm] = useState<string>('');
 
-    const fetchReservations = async () => {
-        setLoading(true);
-        try {
-            let data: any[] = [];
-            if (isAdmin && activeTab === 'ALL_RESERVATIONS') {
-                data = await reservationService.getAllReservations();
-            } else {
-                data = await reservationService.getMyReservations();
-            }
-            setReservations(data);
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            toast.error("Failed to load reservations!");
-        } finally {
-            setLoading(false);
-        }
-    };
-
+    
     useEffect(() => {
-        fetchReservations();
-        setSearchTerm('');
+        const fetchPromise = (isAdmin && activeTab === 'ALL_RESERVATIONS')
+            ? reservationService.getAllReservations()
+            : reservationService.getMyReservations();
+
+        fetchPromise
+            .then(data => setReservations(data))
+            .catch(error => {
+                console.error("Fetch Error:", error);
+                toast.error("Failed to load reservations!");
+            })
+            .finally(() => setLoading(false));
     }, [isAdmin, activeTab]);
 
     const handleCancel = async (id: number | string) => {
         if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
 
+        setLoading(true);
         try {
             if (isAdmin && activeTab === 'ALL_RESERVATIONS') {
                 await reservationService.adminCancelReservation(id);
@@ -45,7 +39,17 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                 await reservationService.cancelSelfReservation(id);
             }
             toast.success("Reservation has been cancelled.");
-            fetchReservations(); 
+            
+            
+            const fetchPromise = (isAdmin && activeTab === 'ALL_RESERVATIONS')
+                ? reservationService.getAllReservations()
+                : reservationService.getMyReservations();
+
+            fetchPromise
+                .then(data => setReservations(data))
+                .catch(() => toast.error("Failed to reload reservations!"))
+                .finally(() => setLoading(false));
+
         } catch (error: any) {
             console.error("Cancel Error:", error);
             const errorData = error.response?.data;
@@ -57,6 +61,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                 errorMessage = errorData.message;
             }
             toast.error(errorMessage);
+            setLoading(false); 
         }
     };
 
@@ -93,7 +98,11 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                     <div className="flex gap-4">
                         <button 
-                            onClick={() => setActiveTab('MY_RESERVATIONS')}
+                            onClick={() => {
+                                setActiveTab('MY_RESERVATIONS');
+                                setSearchTerm('');
+                                setLoading(true); 
+                            }}
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
                                 ${activeTab === 'MY_RESERVATIONS' 
                                     ? 'bg-red-900 text-white border-red-900' 
@@ -103,7 +112,11 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                             My Reservations
                         </button>
                         <button 
-                            onClick={() => setActiveTab('ALL_RESERVATIONS')}
+                            onClick={() => {
+                                setActiveTab('ALL_RESERVATIONS');
+                                setSearchTerm('');
+                                setLoading(true);
+                            }}
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
                                 ${activeTab === 'ALL_RESERVATIONS' 
                                     ? 'bg-red-900 text-white border-red-900' 

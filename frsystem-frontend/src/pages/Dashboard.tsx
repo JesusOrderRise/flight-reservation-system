@@ -1,5 +1,5 @@
-import React, { useState, useContext } from 'react';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext'; 
 import Airports from './Airports';
 import Airplanes from './Airplanes';
 import Flights from './Flights';
@@ -11,13 +11,8 @@ const Dashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>('Airports');
     const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
     
-    // AuthContext'ten gelen değerlerin tiplerine göre (gerekirse AuthContext tip tanımlarına da bakarak) destruct ediyoruz
-    const { role, firstName, lastName, logout } = useContext(AuthContext) as {
-        role: string;
-        firstName: string;
-        lastName: string;
-        logout: () => void;
-    };
+    
+    const { role, firstName, lastName, logout } = useAuth();
     
     const isAdmin = role === 'ADMIN';
 
