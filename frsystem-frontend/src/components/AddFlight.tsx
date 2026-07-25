@@ -50,7 +50,8 @@ const AddFlight: React.FC<AddFlightProps> = ({ isOpen, onClose, onSuccess }) => 
                     departureTime: '',
                     arrivalTime: ''
                 });
-            } catch (error: any) {
+            } catch {
+                
                 toast.error("Error when fetching data");
             }
         };
