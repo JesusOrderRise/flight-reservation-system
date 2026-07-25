@@ -55,9 +55,7 @@ public class FlightService {
         Flight example = flightMapper.toEntity(request);
 
         ExampleMatcher matcher = ExampleMatcher.matching()
-                .withIgnoreNullValues()
-                .withIgnoreCase()
-                .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING);
+                .withIgnoreNullValues();
 
 
         return flightRepository.findAll(Example.of(example, matcher)).stream()

@@ -1,20 +1,34 @@
-import { useState } from 'react';
-import { airportService } from '../services/airportService';
+import React, { useState, type ChangeEvent } from 'react';
+import { airportService } from '../services/AirportService';
+import { toast } from 'react-toastify';
 
-const AddAirport = ({ isOpen, onClose, onSuccess }) => {
-    const [formData, setFormData] = useState({
+interface AddAirportProps {
+    isOpen: boolean;
+    onClose: () => void;
+    onSuccess: () => void;
+}
+
+interface AirportFormData {
+    iataCode: string;
+    name: string;
+    country: string;
+    city: string;
+}
+
+const AddAirport: React.FC<AddAirportProps> = ({ isOpen, onClose, onSuccess }) => {
+    const [formData, setFormData] = useState<AirportFormData>({
         iataCode: '',
         name: '',
         country: '',
         city: ''
     });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [error, setError] = useState<string | null>(null);
 
-    //Unless called draws nothing
+    // Unless called draws nothing
     if (!isOpen) return null;
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFormData(prev => ({
             ...prev,
@@ -22,7 +36,7 @@ const AddAirport = ({ isOpen, onClose, onSuccess }) => {
         }));
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = async (e: any) => {
         e.preventDefault(); 
         setLoading(true);
         setError(null);
@@ -32,32 +46,26 @@ const AddAirport = ({ isOpen, onClose, onSuccess }) => {
             
             setFormData({ iataCode: '', name: '', country: '', city: '' });
             
-            alert('Airport successfully added!');
+            toast.success('Airport successfully added!');
             
-            //after addition refreshes the list
+            // after addition refreshes the list
             onSuccess();
             
-} catch (err) {
-    
-    if (err.response && err.response.data) {
-        
-        if (err.response.data.message) {
-            setError(err.response.data.message);
-        } 
-        
-        else {
-            setError("Unexpected error occured!");
+        } catch (err: any) {
+            if (err.response && err.response.data) {
+                if (err.response.data.message) {
+                    setError(err.response.data.message);
+                } else {
+                    setError("Unexpected error occured!");
+                }
+            }
+        } finally {
+            setLoading(false);
         }
-    }
-    
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
     return (
         <div className="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
-            
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md p-6">
                 <div className="flex justify-between items-center mb-4 border-b pb-2">
                     <h2 className="text-xl font-bold text-gray-800">Add New Airport</h2>
@@ -79,7 +87,7 @@ const AddAirport = ({ isOpen, onClose, onSuccess }) => {
                             onChange={handleInputChange}
                             className="w-full border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
                             placeholder="e.g. IST"
-                            maxLength="3"
+                            maxLength={3}
                         />
                     </div>
                     

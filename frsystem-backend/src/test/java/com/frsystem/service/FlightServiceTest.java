@@ -235,7 +235,7 @@ public class FlightServiceTest extends AbstractIntegrationTest {
         FlightResponse saved1 = flightService.saveFlight(new FlightRequest("TC123", testAirplane1.getId(), testDepartureAirport.getId(), testArrivalAirport.getId(), now.plusDays(10), now.plusDays(11)));
         FlightResponse saved2 = flightService.saveFlight(new FlightRequest("TC321", testAirplane2.getId(), testDepartureAirport.getId(), testArrivalAirport.getId(), now.plusDays(10), now.plusDays(11)));
 
-        FlightRequest searchBody = new FlightRequest("tc3", null, null, null, null, null);
+        FlightRequest searchBody = new FlightRequest("TC321", null, null, null, null, null);
         List<FlightResponse> returnEntities = flightService.searchWithParameters(searchBody);
 
         //Did it catch exactly 2 values it supposed to catch?

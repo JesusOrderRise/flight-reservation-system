@@ -11,7 +11,6 @@ const Dashboard: React.FC = () => {
     const [activeTab, setActiveTab] = useState<string>('Airports');
     const [isAdminModalOpen, setIsAdminModalOpen] = useState<boolean>(false);
     
-    
     const { role, firstName, lastName, logout } = useContext(AuthContext) as {
         role: string;
         firstName: string;

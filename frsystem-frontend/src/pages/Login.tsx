@@ -1,60 +1,71 @@
-import { useState, useContext } from 'react';
+import React, { useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
-import api from '../services/api'; 
+import api from '../services/Api';
+import { toast } from 'react-toastify';
+import logoImage from '../assets/logo.png';
 
-const Login = () => {
-  const [isLogin, setIsLogin] = useState(true); 
+const Login: React.FC = () => {
+  const [isLogin, setIsLogin] = useState<boolean>(true); 
 
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [firstName, setFirstName] = useState(''); 
-  const [lastName, setLastName] = useState('');   
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [firstName, setFirstName] = useState<string>(''); 
+  const [lastName, setLastName] = useState<string>('');   
 
-  const { login } = useContext(AuthContext);
+  const { login } = useContext(AuthContext) as {
+    login: (token: string, role: string, firstName: string, lastName: string) => void;
+  };
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     try {
       if (isLogin) {
-        //Login
+        // Login
         const response = await api.post('/auth/login', { email, password });
         const { token, role, firstName: userFName, lastName: userLName } = response.data; 
         
-        //Context updates
+        // Context updates
         login(token, role, userFName, userLName);
         
         navigate('/dashboard');
       } else {
-        //Register passenger
+        // Register passenger
         await api.post('/auth/register/passenger', { firstName, lastName, email, password });
         
-        alert("Register is successfull! You can login!");
+        toast.success("Register is successfull! You can login!");
         setIsLogin(true); 
         setFirstName('');
         setLastName('');
         setPassword(''); 
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error("Auth Error:", error);
       if (error.response && error.response.data) {
-        
         const errorMsg = error.response.data.message || error.response.data;
-        alert(errorMsg); 
+        toast.error(errorMsg); 
       } else {
-        alert("Unexpected Error!");
+        toast.error("Unexpected Error!");
       }
     }
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-gray-100">
-      <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h2 className="text-2xl font-bold mb-6 text-center">
-          {isLogin ? 'Login' : 'Passenger Registiration'}
-        </h2>
+    <div className="flex flex-col h-screen items-center justify-center bg-gray-100">
+        <div className="flex flex-col items-center mb-6">
+            <img 
+              src={logoImage} 
+              alt="Rise and Fly Logo" 
+              className="w-50 h-50 object-contain" 
+            />
+            <h1 className="text-5xl font-black text-gray-800 tracking-wider">Rise and Fly</h1>
+        </div>
         
+        <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
+            <h2 className="text-2xl font-bold mb-6 text-center">
+                {isLogin ? 'Login' : 'Passenger Registiration'}
+            </h2>
         
         {!isLogin && (
           <div className="flex gap-2 mb-4">
@@ -98,7 +109,6 @@ const Login = () => {
           {isLogin ? 'Login' : 'Register'}
         </button>
 
-        
         <div className="text-center text-sm text-gray-600">
           {isLogin ? "Dont have an account? " : "Already have an account? "}
           <button 
