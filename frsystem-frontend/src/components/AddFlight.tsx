@@ -33,34 +33,32 @@ const AddFlight: React.FC<AddFlightProps> = ({ isOpen, onClose, onSuccess }) => 
     const [airplanes, setAirplanes] = useState<any[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const fetchDropdownData = async () => {
-    try {
-        const [airportData, airplaneData] = await Promise.all([
-            airportService.getAllAirports(),
-            airplaneService.getAllAirplanes()
-        ]);
-        setAirports(airportData);
-        setAirplanes(airplaneData);
-        setFormData({
-                flightNumber: '',
-                departureAirportId: '',
-                arrivalAirportId: '',
-                airplaneId: '',
-                departureTime: '',
-                arrivalTime: ''
-            });
-    } catch (error) {
-        toast.error("Error when fetching data");
-    }
-    };
-
     useEffect(() => {
+        const fetchDropdownData = async () => {
+            try {
+                const [airportData, airplaneData] = await Promise.all([
+                    airportService.getAllAirports(),
+                    airplaneService.getAllAirplanes()
+                ]);
+                setAirports(airportData);
+                setAirplanes(airplaneData);
+                setFormData({
+                    flightNumber: '',
+                    departureAirportId: '',
+                    arrivalAirportId: '',
+                    airplaneId: '',
+                    departureTime: '',
+                    arrivalTime: ''
+                });
+            } catch (error: any) {
+                toast.error("Error when fetching data");
+            }
+        };
+
         if (isOpen) {
             fetchDropdownData();
         }
     }, [isOpen]);
-
-
 
     const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;

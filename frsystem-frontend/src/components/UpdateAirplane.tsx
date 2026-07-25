@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type ChangeEvent } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import { airplaneService } from '../services/AirplaneService';
 
 interface UpdateAirplaneProps {

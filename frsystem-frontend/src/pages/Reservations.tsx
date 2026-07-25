@@ -1,4 +1,4 @@
-import React, { useState, useEffect, type ChangeEvent } from 'react';
+import React, { useState, useEffect, useCallback, type ChangeEvent } from 'react';
 import { toast } from 'react-toastify';
 import { reservationService } from '../services/ReservationService';
 
@@ -12,7 +12,8 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
     const [activeTab, setActiveTab] = useState<string>('MY_RESERVATIONS');
     const [searchTerm, setSearchTerm] = useState<string>('');
 
-    const fetchReservations = async () => {
+    
+    const fetchReservations = useCallback(async () => {
         setLoading(true);
         try {
             let data: any[] = [];
@@ -28,12 +29,12 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [isAdmin, activeTab]); 
 
+    
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
         fetchReservations();
-    }, [isAdmin, activeTab]);
+    }, [fetchReservations]);
 
     const handleCancel = async (id: number | string) => {
         if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
@@ -96,8 +97,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                             onClick={() => {
                                 setActiveTab('MY_RESERVATIONS');
                                 setSearchTerm('');
-                            }
-                            }
+                            }}
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
                                 ${activeTab === 'MY_RESERVATIONS' 
                                     ? 'bg-red-900 text-white border-red-900' 
@@ -110,8 +110,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                             onClick={() => {
                                 setActiveTab('ALL_RESERVATIONS')
                                 setSearchTerm('');
-                            }
-                            }
+                            }}
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
                                 ${activeTab === 'ALL_RESERVATIONS' 
                                     ? 'bg-red-900 text-white border-red-900' 
