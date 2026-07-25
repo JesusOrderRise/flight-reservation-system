@@ -104,9 +104,11 @@ const Airports: React.FC<AirportsProps> = ({ isAdmin }) => {
         } catch (error: any) {
             console.error("Deleting Error:", error);
             if (error.response && error.response.data) {
-                toast.error(error.response.data);
+                
+                const errorMsg = error.response.data.message || error.response.data;
+                toast.error(errorMsg);
             }
-        }
+            }
     };
 
     return (
