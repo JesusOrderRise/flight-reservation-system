@@ -1,10 +1,13 @@
+import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import Login from './pages/Login';
-import Dashboard from './pages/Dashboard'; // Yeni krallığımızı import ettik
+import Dashboard from './pages/Dashboard'; 
+import { ToastContainer } from 'react-toastify'; 
+import 'react-toastify/dist/ReactToastify.css';
 
-function App() {
+const App: React.FC = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
@@ -12,10 +15,10 @@ function App() {
           {/* all permitted */}
           <Route path="/login" element={<Login />} />
 
-          {/* only with token*/}
+          {/* only with token */}
           <Route element={<ProtectedRoute />}>
             
-            {/* dashboard*/}
+            {/* dashboard */}
             <Route path="/dashboard" element={<Dashboard />} />
             
             {/* directly navigate to dashboard from root */}
@@ -24,6 +27,11 @@ function App() {
           </Route>
         </Routes>
       </BrowserRouter>
+      <ToastContainer 
+        position="bottom-right" 
+        autoClose={3000} 
+        theme="colored" 
+      />
     </AuthProvider>
   );
 }

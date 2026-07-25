@@ -1,4 +1,4 @@
-import api from './api';
+import api from './Api';
 
 export const airportService = {
 
@@ -7,28 +7,27 @@ export const airportService = {
     return response.data;
   },
 
-  
-  getAirportById: async (id) => {
+  getAirportById: async (id: number | string) => {
     const response = await api.get(`/airports/${id}`);
     return response.data;
   },
 
-  searchAirports: async (airportData) => {
+  searchAirports: async (airportData: any) => {
     const response = await api.post('/airports/search', airportData);
     return response.data;
   },
   
-  createAirport: async (airportData) => {
+  createAirport: async (airportData: any) => {
     const response = await api.post('/airports', airportData);
     return response.data;
   },
 
-  updateAirport: async (id, airportData) => {
+  updateAirport: async (id: number | string, airportData: any) => {
     const response = await api.put(`/airports/${id}`, airportData);
     return response.data;
   },
 
-    deleteAirport: async (id) => {
+  deleteAirport: async (id: number | string) => {
     const response = await api.delete(`/airports/${id}`);
     return response.data;
   },

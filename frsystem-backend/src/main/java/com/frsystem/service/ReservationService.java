@@ -125,6 +125,17 @@ public class ReservationService {
         return reservationMapper.toResponse(saved);
     }
 
+    public List<ReservationResponse> getReservationsForFlight(Long id) {
+        return reservationRepository.findByFlightId(id)
+                .stream()
+                .filter(reservation -> (ReservationStatus.CONFIRMED).equals(reservation.getStatus()))
+                .map(reservation -> {
+                    ReservationResponse response = new ReservationResponse();
+                    response.setSeatNumber(reservation.getSeatNumber());
+                    return response;
+                })
+                .toList();
+    }
 }
 
 
