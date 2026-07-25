@@ -6,12 +6,15 @@ import com.frsystem.service.ReservationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/reservations")
+@CrossOrigin(origins = "http://localhost:5173")
+@Validated
 public class ReservationController {
 
     @Autowired
@@ -40,5 +43,10 @@ public class ReservationController {
     @PatchMapping("/{reservationId}/admin-cancel")
     public ResponseEntity<ReservationResponse> adminCancelReservation(@PathVariable Long reservationId) {
         return ResponseEntity.ok(reservationService.adminCancelReservation(reservationId));
+    }
+
+    @GetMapping("/flight/{flightId}")
+    public ResponseEntity<List<ReservationResponse>> getOccupiedSeatsForFlight(@PathVariable Long flightId) {
+        return ResponseEntity.ok(reservationService.getReservationsForFlight(flightId));
     }
 }

@@ -1,25 +1,39 @@
-import { useState, useEffect } from 'react';
-import { airportService } from '../services/airportService';
-import AddAirport from '../components/AddAirport'; 
- 
-const Airports = ({ onUpdate, isAdmin }) => {
-    const [airports, setAirports] = useState([]);
-    const [searchQuery, setSearchQuery] = useState({
-        iataCode: '',
-        name: '',
-        country: '',
-        city: ''
+import React, { useState, useEffect, type ChangeEvent } from 'react';
+import { airplaneService } from '../services/AirplaneService';
+import AddAirplane from '../components/AddAirplane'; 
+import UpdateAirplane from '../components/UpdateAirplane';
+import { toast } from 'react-toastify';
+
+interface AirplanesProps {
+    isAdmin: boolean;
+}
+
+interface SearchQuery {
+    tailNumber: string;
+    airline: string;
+    model: string;
+    capacity: string;
+}
+
+const Airplanes: React.FC<AirplanesProps> = ({ isAdmin }) => {
+    const [airplanes, setAirplanes] = useState<any[]>([]);
+    const [isUpdateModalOpen, setIsUpdateModalOpen] = useState<boolean>(false);
+    const [selectedAirplane, setSelectedAirplane] = useState<any | null>(null);
+    const [searchQuery, setSearchQuery] = useState<SearchQuery>({
+        tailNumber: '',
+        airline: '',
+        model: '',
+        capacity: ''
     });
-    const [loading, setLoading] = useState(false);
-    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+    const [loading, setLoading] = useState<boolean>(false);
+    const [isAddModalOpen, setIsAddModalOpen] = useState<boolean>(false);
+    const [visibleCount, setVisibleCount] = useState<number>(5);
 
-    const [visibleCount, setVisibleCount] = useState(5);
-
-    // Fetch all airports function.
-    const fetchAllAirports = async () => {
+    // Fetch all airplanes function.
+    const fetchAllAirplanes = async () => {
         try {
-            const data = await airportService.getAllAirports();
-            setAirports(data);
+            const data = await airplaneService.getAllAirplanes();
+            setAirplanes(data);
         } catch (err) {
             console.error("Fetch error:", err);
         }
@@ -27,19 +41,19 @@ const Airports = ({ onUpdate, isAdmin }) => {
 
     // Runs once when loaded
     useEffect(() => {
-        fetchAllAirports();
+        fetchAllAirplanes();
     }, []);
 
-    const searchAirports = async () => {
+    const searchAirplanes = async () => {
         const isEmpty = Object.values(searchQuery).every(val => val === '');
         
         if (isEmpty) {
-            fetchAllAirports();
+            fetchAllAirplanes();
         } else {
             setLoading(true);
             try {
-                const data = await airportService.searchAirports(searchQuery);
-                setAirports(data);
+                const data = await airplaneService.searchAirplane(searchQuery);
+                setAirplanes(data);
             } catch (err) {
                 console.error('Search error:', err);
             } finally {
@@ -48,7 +62,7 @@ const Airports = ({ onUpdate, isAdmin }) => {
         }
     };
 
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setSearchQuery(prev => ({
             ...prev,
@@ -57,39 +71,38 @@ const Airports = ({ onUpdate, isAdmin }) => {
     };
 
     const handleSearch = () => {
-        searchAirports();
+        searchAirplanes();
     };
 
     const handleClear = () => {
         setSearchQuery({
-            iataCode: '',
-            name: '',
-            country: '',
-            city: ''
+            tailNumber: '',
+            airline: '',
+            model: '',
+            capacity: ''
         });
-        
-        fetchAllAirports();
+        fetchAllAirplanes();
     };
 
-    const deleteAirport = async (airport) => {
-        //Confirmation before deleting.
-        if (!window.confirm(`Are you sure you want to delete ${airport.name}?`)) return;
+    const deleteAirplane = async (airplane: any) => {
+        // Confirmation before deleting.
+        if (!window.confirm(`Are you sure you want to delete ${airplane.tailNumber}?`)) return;
 
         try {
-            await airportService.deleteAirport(airport.id);
-            alert('Successfully deleted!');
+            await airplaneService.deleteAirplane(airplane.id);
+            toast.success('Successfully deleted!');
             
             const hasSearch = Object.values(searchQuery).some(val => val !== '');
             if (hasSearch) {
-                const data = await airportService.searchAirports(searchQuery);
-                setAirports(data);
+                const data = await airplaneService.searchAirplane(searchQuery);
+                setAirplanes(data);
             } else {
-                fetchAllAirports();
+                fetchAllAirplanes();
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error("Deleting Error:", error);
             if (error.response && error.response.data) {
-                alert(error.response.data);
+                toast.error(error.response.data);
             }
         }
     };
@@ -99,35 +112,35 @@ const Airports = ({ onUpdate, isAdmin }) => {
             <div className="flex flex-row justify-between items-center gap-4 mb-6 border-b pb-4">
                 <div className="flex flex-row justify-start items-center gap-2 flex-1">
                     <input
-                        name="iataCode"
-                        placeholder="IATA Code"
-                        value={searchQuery.iataCode}
+                        name="tailNumber"
+                        placeholder="Tail Number"
+                        value={searchQuery.tailNumber}
                         onChange={handleInputChange}
                         className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <input
-                        name="name"
-                        placeholder="Name"
-                        value={searchQuery.name}
+                        name="airline"
+                        placeholder="Airline"
+                        value={searchQuery.airline}
                         onChange={handleInputChange}
                         className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <input
-                        name="country"
-                        placeholder="Country"
-                        value={searchQuery.country}
+                        name="model"
+                        placeholder="Model"
+                        value={searchQuery.model}
                         onChange={handleInputChange}
                         className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                     <input
-                        name="city"
-                        placeholder="City"
-                        value={searchQuery.city}
+                        name="capacity"
+                        placeholder="Capacity"
+                        value={searchQuery.capacity}
                         onChange={handleInputChange}
                         className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
                     />
                 </div>
-                <div className='flex flex-row justify-end gap-2 shrink-0'>
+                <div className="flex flex-row justify-end gap-2 shrink-0">
                     <button 
                         className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
                         onClick={handleSearch}
@@ -146,16 +159,15 @@ const Airports = ({ onUpdate, isAdmin }) => {
 
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold text-gray-800">
-                    {airports.length} Airports Found
+                    {airplanes.length} Airplanes Found
                 </h2>
                 
-                {/* Only visible for admins */}
                 {isAdmin && (
                     <button 
                         onClick={() => setIsAddModalOpen(true)}
-                        className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700 transition shadow-sm"
+                        className="bg-red-600 text-white px-4 py-2 rounded font-semibold hover:bg-red-700 transition shadow-sm"
                     >
-                        + Add Airport
+                        + Add Airplane
                     </button>
                 )}
             </div>
@@ -165,38 +177,38 @@ const Airports = ({ onUpdate, isAdmin }) => {
                     <thead className="bg-gray-100 border-b-2 border-gray-200">
                         <tr>
                             <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">ID</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">IATA</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">Name</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">Country</th>
-                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">City</th>
-                            {/* Actions Column only visible for admin */}
+                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">Tail Number</th>
+                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">Airline</th>
+                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">Model</th>
+                            <th className="py-3 px-4 text-left text-sm font-semibold text-gray-600 tracking-wider">Capacity</th>
                             {isAdmin && (
                                 <th className="py-3 px-4 text-right text-sm font-semibold text-gray-600 tracking-wider">Actions</th>
                             )}
                         </tr>
                     </thead>
-                    {/* slicing for pagination */}
                     <tbody className="divide-y divide-gray-200">
-                        {airports.slice(0, visibleCount).map((airport) => (
-                            <tr key={airport.id} className="hover:bg-gray-50 transition">
-                                <td className="py-3 px-4 text-sm text-gray-700">{airport.id}</td>
-                                <td className="py-3 px-4 text-sm font-medium text-gray-900">{airport.iataCode}</td>
-                                <td className="py-3 px-4 text-sm text-gray-700">{airport.name}</td>
-                                <td className="py-3 px-4 text-sm text-gray-700">{airport.country}</td>
-                                <td className="py-3 px-4 text-sm text-gray-700">{airport.city}</td>
+                        {airplanes.slice(0, visibleCount).map((airplane) => (
+                            <tr key={airplane.id} className="hover:bg-gray-50 transition">
+                                <td className="py-3 px-4 text-sm text-gray-700">{airplane.id}</td>
+                                <td className="py-3 px-4 text-sm font-medium text-gray-900">{airplane.tailNumber}</td>
+                                <td className="py-3 px-4 text-sm text-gray-700">{airplane.airline}</td>
+                                <td className="py-3 px-4 text-sm text-gray-700">{airplane.model}</td>
+                                <td className="py-3 px-4 text-sm text-gray-700">{airplane.capacity}</td>
                                 
-                                {/* Action Buttons only visible if user is admin */}
                                 {isAdmin && (
                                     <td className="py-3 px-4 text-right whitespace-nowrap text-sm">
                                         <button 
                                             className="text-blue-600 hover:text-blue-900 font-medium mr-4 transition" 
-                                            onClick={() => onUpdate(airport)}
+                                            onClick={() => {
+                                                setSelectedAirplane(airplane);
+                                                setIsUpdateModalOpen(true);
+                                            }}
                                         >
                                             Edit
                                         </button>
                                         <button 
                                             className="text-red-600 hover:text-red-900 font-medium transition" 
-                                            onClick={() => deleteAirport(airport)}
+                                            onClick={() => deleteAirplane(airplane)}
                                         >
                                             Delete
                                         </button>
@@ -206,33 +218,47 @@ const Airports = ({ onUpdate, isAdmin }) => {
                         ))}
                     </tbody>
                 </table>
-                {visibleCount < airports.length && (
+                {visibleCount < airplanes.length && (
                     <div className="flex justify-center mt-6 mb-4">
                         <button 
                             onClick={() => setVisibleCount(prev => prev + 5)} 
                             className="bg-gray-100 border border-gray-300 text-gray-700 px-6 py-2 rounded-full font-semibold hover:bg-gray-200 transition shadow-sm"
                         >
-                        Load More ↓
+                            Load More ↓
                         </button>
                     </div>
-)}
+                )}
                 
-                {airports.length === 0 && !loading && (
+                {airplanes.length === 0 && !loading && (
                     <div className="text-center py-8 text-gray-500">
-                        No airports found matching your criteria.
+                        No airplanes found matching your criteria.
                     </div>
                 )}
             </div>
-            <AddAirport 
+            <AddAirplane 
                 isOpen={isAddModalOpen} 
                 onClose={() => setIsAddModalOpen(false)} 
                 onSuccess={() => {
                     setIsAddModalOpen(false); 
-                    fetchAllAirports(); 
+                    fetchAllAirplanes(); 
+                }} 
+            />
+            <UpdateAirplane
+                isOpen={isUpdateModalOpen} 
+                onClose={() => setIsUpdateModalOpen(false)} 
+                airplane={selectedAirplane}
+                onSuccess={() => {
+                    setIsUpdateModalOpen(false); 
+                    const hasSearch = Object.values(searchQuery).some(val => val !== '');
+                    if (hasSearch) {
+                        searchAirplanes();
+                    } else {
+                        fetchAllAirplanes(); 
+                    }
                 }} 
             />
         </div>
     );
 };
 
-export default Airports;
+export default Airplanes;

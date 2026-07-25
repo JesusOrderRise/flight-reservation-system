@@ -1,34 +1,33 @@
-import api from './api';
+import api from './Api';
 
 export const airplaneService = {
 
-  getAllairplanes: async () => {
+  getAllAirplanes: async () => {
     const response = await api.get('/airplanes');
     return response.data;
   },
 
-  
-  getairplaneById: async (id) => {
+  getAirplaneById: async (id: number | string) => {
     const response = await api.get(`/airplanes/${id}`);
     return response.data;
   },
 
-  searchairplanes: async (airplaneData) => {
-    const response = await api.put('/airplanes/search', airplaneData);
+  searchAirplane: async (airplaneData: any) => {
+    const response = await api.post('/airplanes/search', airplaneData);
     return response.data;
   },
   
-  createairplane: async (airplaneData) => {
+  createAirplane: async (airplaneData: any) => {
     const response = await api.post('/airplanes', airplaneData);
     return response.data;
   },
 
-  updateairplane: async (id, airplaneData) => {
+  updateAirplane: async (id: number | string, airplaneData: any) => {
     const response = await api.put(`/airplanes/${id}`, airplaneData);
     return response.data;
   },
 
-    deleteairplane: async (id) => {
+  deleteAirplane: async (id: number | string) => {
     const response = await api.delete(`/airplanes/${id}`);
     return response.data;
   },

@@ -39,7 +39,7 @@ public class SecurityConfig {
 
                         // PASSENGER READ ONLY
                         .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/v1/airplanes/**", "/api/v1/airports/**").authenticated()
-
+                        .requestMatchers(org.springframework.http.HttpMethod.POST, "/api/v1/airplanes/search", "/api/v1/airports/search").permitAll()
                         //ADMIN CAN REACH OTHER METHODS (PUT, DELETE, POST)
                         .requestMatchers("/api/v1/airplanes/**").hasAuthority("ADMIN")
                         .requestMatchers("/api/v1/airports/**").hasAuthority("ADMIN")
