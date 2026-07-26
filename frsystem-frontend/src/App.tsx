@@ -24,6 +24,11 @@ const App: React.FC = () => {
             {/* directly navigate to dashboard from root */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
             
+            
+            {/* navigates to dashboard if tried to access non existing path. 
+            If has no token, protected route automatically will route to login anyways.*/}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
+
           </Route>
         </Routes>
       </BrowserRouter>
