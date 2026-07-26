@@ -70,11 +70,16 @@ public class ReservationService {
 
         Reservation saved = reservationRepository.save(reservationToSave);
 
-        emailService.sendReservationConfirmation(
-                saved.getUser().getEmail(),
-                saved.getSeatNumber(),
-                saved.getFlight().getId()
-        );
+        try {
+            emailService.sendReservationConfirmation(
+                    saved.getUser().getEmail(),
+                    saved.getSeatNumber(),
+                    saved.getFlight().getId()
+            );
+        } catch (Exception e) {
+
+            System.err.println("Email couldnt sent. Reason: " + e.getMessage());
+        }
 
         return reservationMapper.toResponse(saved);
     }
