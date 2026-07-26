@@ -18,13 +18,13 @@ spring:
     username: ${POSTGRES_USER}
     password: ${POSTGRES_PASSWORD}
   mail:
-    host: ${MAILHOG_HOST}
-    port: ${MAILHOG_SMTP_PORT}
+    host: ${MAILHOG_HOST:localhost}
+    port: ${MAILHOG_SMTP_PORT:1025}
 
 mailhog:
   web:
-    host: ${MAILHOG_HOST}
-    port: ${MAILHOG_WEB_PORT}
+    host: ${MAILHOG_HOST:localhost}
+    port: ${MAILHOG_WEB_PORT:8025}
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
