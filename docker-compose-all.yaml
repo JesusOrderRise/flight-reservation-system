@@ -53,7 +53,11 @@ services:
     build:
       context: ./frsystem-frontend
       dockerfile: Dockerfile
+      args:
+      VITE_API_URL: ${VITE_API_URL}
     container_name: frsystem-frontend
+    environment:
+      - PORT=80
     ports:
       - "${FRONTEND_PORT}:80"
     depends_on:
