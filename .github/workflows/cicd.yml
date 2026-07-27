@@ -83,7 +83,7 @@ jobs:
       - name: Run Trivy vulnerability scanner on Backend
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ fromJSON(steps.meta-backend.outputs.tags)[0] }}
+          image-ref: 'ghcr.io/${{ github.repository }}-backend:sha-${{ github.sha }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -163,7 +163,7 @@ jobs:
       - name: Run Trivy vulnerability scanner on Frontend
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: ${{ fromJSON(steps.meta-frontend.outputs.tags)[0] }}
+          image-ref: 'ghcr.io/${{ github.repository }}-frontend:sha-${{ github.sha }}'
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
@@ -192,11 +192,11 @@ jobs:
         run: npm i -g @railway/cli
 
       - name: Deploy Backend Image to Railway
-        run: railway up --service backend --image ghcr.io/${{ github.repository }}-backend:latest -d
+        run: railway up --service backend --image ghcr.io/${{ github.repository }}-backend:sha-${{ github.sha }} -d
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
 
       - name: Deploy Frontend Image to Railway
-        run: railway up --service frontend --image ghcr.io/${{ github.repository }}-frontend:latest -d
+        run: railway up --service frontend --image ghcr.io/${{ github.repository }}-frontend:sha-${{ github.sha }} -d
         env:
           RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
