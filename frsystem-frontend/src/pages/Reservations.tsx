@@ -70,7 +70,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
         fetchAllReservations();
     };
 
-const handleCancel = async (id: number | string) => {
+    const handleCancel = async (id: number | string) => {
         if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
 
         setLoading(true);
