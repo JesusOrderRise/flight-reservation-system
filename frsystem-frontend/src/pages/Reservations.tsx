@@ -26,7 +26,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
         lastName: ''
     });
 
-    const fetchAllReservations = async () => {
+    const fetchAllReservations = React.useCallback(async () => {
         try {
             const data = (isAdmin && activeTab === 'ALL_RESERVATIONS')
                 ? await reservationService.getAllReservations()
@@ -38,11 +38,11 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [isAdmin, activeTab]);
 
     useEffect(() => {
         fetchAllReservations();
-    }, [isAdmin, activeTab]);
+    }, [fetchAllReservations]);
 
     const handleSearch = async (e: any) => {
         e.preventDefault();
