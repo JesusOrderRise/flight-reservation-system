@@ -32,11 +32,11 @@ spring:
       timeout: 2000ms
       connect-timeout: 2000ms
 
-    cache:
-      type: redis
-      redis:
-        time-to-live: ${REDIS_TTL:3600000}
-        cache-null-values: false
+  cache:
+    type: redis
+    redis:
+      time-to-live: ${REDIS_TTL:3600000}
+      cache-null-values: false
 
 mailhog:
   web:
