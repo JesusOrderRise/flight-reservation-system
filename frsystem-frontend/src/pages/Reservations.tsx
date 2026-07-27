@@ -41,6 +41,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
     }, [isAdmin, activeTab]);
 
     useEffect(() => {
+        // eslint-disable-next-line
         fetchAllReservations();
     }, [fetchAllReservations]);
 
