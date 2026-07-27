@@ -45,6 +45,7 @@ mailhog:
 jwt:
   secret: ${JWT_SECRET}
   expiration: ${JWT_EXPIRATION}
+
 management:
   endpoints:
     web:
