@@ -10,6 +10,8 @@ import com.frsystem.repository.AirportRepository;
 import com.frsystem.repository.FlightRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class AirportService {
     @Autowired
     private FlightRepository flightRepository;
 
-    //***************************Gerekli mi??????*******************
+    @Cacheable(value = "airports")
     public List<AirportResponse> getAll() {
         return airportRepository.findAll()
                 .stream()
@@ -40,6 +42,7 @@ public class AirportService {
     }
 
     //Delete using the ID, with validation of if it exists.
+    @CacheEvict(value = {"airports", "airportSearch", "airportDetails"}, allEntries = true)
     public void deleteAirportByID(Long ID) {
         Airport existing = airportRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Airport with this ID!"));
@@ -52,6 +55,7 @@ public class AirportService {
 
     //**************************************************
     //Parameter Search, injecting given parameters to the example Airplane class.
+    @Cacheable(value = "airportSearch", key = "#request.iataCode + '_' + #request.name + '_' + #request.country + '_' + #request.city")
     public List<AirportResponse> searchWithParameters(AirportRequest request) {
 
         Airport example = airportMapper.toEntity(request);
@@ -68,6 +72,7 @@ public class AirportService {
     //TODO: DTO İLE YAP! CHECK!
 
     //saving Airport With Validation.
+    @CacheEvict(value = {"airports", "airportSearch"}, allEntries = true)
     public AirportResponse saveAirport(@Valid AirportRequest request) {
 
         Airport airport = airportMapper.toEntity(request);
@@ -81,6 +86,7 @@ public class AirportService {
     }
 
     //Finding by ID.
+    @Cacheable(value = "airportDetails", key = "#ID")
     public AirportResponse findByID(Long ID) {
         return airportRepository.findById(ID)
                 .map(airportMapper::toResponse)
@@ -88,6 +94,7 @@ public class AirportService {
     }
 
     //Updating Airport with new data. All the values should be given.
+    @CacheEvict(value = {"airports", "airportSearch", "airportDetails"}, allEntries = true)
     public AirportResponse updateAirportByID(Long ID, @Valid AirportRequest newData) {
 
         Airport existing = airportRepository.findById(ID)

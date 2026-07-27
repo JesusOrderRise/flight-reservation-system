@@ -7,6 +7,11 @@ export const reservationService = {
         return response.data;
     },
 
+    searchReservation: async (reservationData: any) => {
+        const response = await api.post('/reservations/search', reservationData);
+        return response.data;
+    },
+
     getMyReservations: async () => {
         const response = await api.get('/reservations/me');
         return response.data;

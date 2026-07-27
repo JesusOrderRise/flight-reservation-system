@@ -2,6 +2,7 @@ package com.frsystem.controller;
 
 import com.frsystem.dto.ReservationRequest;
 import com.frsystem.dto.ReservationResponse;
+import com.frsystem.dto.ReservationSearchRequest;
 import com.frsystem.service.ReservationService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,11 @@ public class ReservationController {
     @Autowired
     private ReservationService reservationService;
 
+    @PostMapping("/search")
+    public ResponseEntity<List<ReservationResponse>> searchReservation(@RequestBody ReservationSearchRequest request) {
+        return ResponseEntity.ok(reservationService.searchWithParameters(request));
+    }
+    
     @PostMapping
     public ResponseEntity<ReservationResponse> makeReservation(@Valid @RequestBody ReservationRequest request) {
         return ResponseEntity.ok(reservationService.makeReservation(request));

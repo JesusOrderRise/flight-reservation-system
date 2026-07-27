@@ -28,5 +28,6 @@ public abstract class ReservationMapper {
     @Mapping(target = "flight", source = "flightId")
     public abstract Reservation toEntity(ReservationRequest request);
 
+
     public abstract ReservationResponse toResponse(Reservation reservation);
 }
