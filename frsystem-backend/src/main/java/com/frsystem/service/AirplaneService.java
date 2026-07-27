@@ -10,6 +10,8 @@ import com.frsystem.repository.AirplaneRepository;
 import com.frsystem.repository.FlightRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class AirplaneService {
     @Autowired
     private FlightRepository flightRepository;
 
+    @Cacheable(value = "airplanes")
     public List<AirplaneResponse> getAll() {
         return airplaneRepository.findAll()
                 .stream()
@@ -40,6 +43,7 @@ public class AirplaneService {
     }
 
     //Delete using the ID, with validation of if it exists.
+    @CacheEvict(value = {"airplanes", "airplaneSearch", "airplaneDetails"}, allEntries = true)
     public void deleteAirplaneByID(Long ID) {
         Airplane existing = airplaneRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Airplane with this ID!"));
@@ -50,6 +54,7 @@ public class AirplaneService {
     }
 
     //Parameter Search, injecting given parameters to the example Airplane class.
+    @Cacheable(value = "airplaneSearch", key = "#request.tailNumber + '_' + #request.airline + '_' + #request.model + '_' + #request.capacity")
     public List<AirplaneResponse> searchWithParameters(AirplaneRequest request) {
 
         Airplane example = airplaneMapper.toEntity(request);
@@ -67,6 +72,7 @@ public class AirplaneService {
 
 
     //saving Airplane With Validation.
+    @CacheEvict(value = {"airplanes", "airplaneSearch"}, allEntries = true)
     public AirplaneResponse saveAirplane(@Valid AirplaneRequest request) {
 
         Airplane airplane = airplaneMapper.toEntity(request);
@@ -80,6 +86,7 @@ public class AirplaneService {
     }
 
     //Finding by ID.
+    @Cacheable(value = "airplaneDetails", key = "#ID")
     public AirplaneResponse findByID(Long ID) {
         return airplaneRepository.findById(ID)
                 .map(airplaneMapper::toResponse)
@@ -88,6 +95,7 @@ public class AirplaneService {
 
 
     //Updating Airplane with new data. All the values should be given
+    @CacheEvict(value = {"airplanes", "airplaneSearch", "airplaneDetails"}, allEntries = true)
     public AirplaneResponse updateAirplaneByID(Long ID, @Valid AirplaneRequest newData) {
         Airplane existing = airplaneRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Airplane with this ID!"));

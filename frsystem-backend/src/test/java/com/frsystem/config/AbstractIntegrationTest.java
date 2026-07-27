@@ -2,6 +2,13 @@ package com.frsystem.config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.support.NoOpCacheManager;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.GenericContainer;
@@ -9,7 +16,18 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 
+@ActiveProfiles("test")
+@Import(AbstractIntegrationTest.NoCacheConfig.class)
 public abstract class AbstractIntegrationTest {
+
+    @TestConfiguration
+    static class NoCacheConfig {
+        @Bean
+        @Primary
+        CacheManager cacheManager() {
+            return new NoOpCacheManager();
+        }
+    }
 
     private static final Logger log = LoggerFactory.getLogger(AbstractIntegrationTest.class);
 

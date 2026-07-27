@@ -1,20 +1,17 @@
 package com.frsystem.dto;
 
-
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponse implements Serializable {
+public class ReservationSearchRequest {
 
     private Long id;
+    private String flightNumber;
     private String firstName;
     private String lastName;
-    private String email;
 
 }

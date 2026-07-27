@@ -6,27 +6,69 @@ interface ReservationsProps {
     isAdmin: boolean;
 }
 
+interface ReservationSearchParams {
+    id: string;
+    flightNumber: string;
+    firstName: string;
+    lastName: string;
+}
+
 const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
     const [reservations, setReservations] = useState<any[]>([]);
     
     const [loading, setLoading] = useState<boolean>(true);
     const [activeTab, setActiveTab] = useState<string>('MY_RESERVATIONS');
-    const [searchTerm, setSearchTerm] = useState<string>('');
-
     
-    useEffect(() => {
-        const fetchPromise = (isAdmin && activeTab === 'ALL_RESERVATIONS')
-            ? reservationService.getAllReservations()
-            : reservationService.getMyReservations();
+    const [searchParams, setSearchParams] = useState<ReservationSearchParams>({
+        id: '',
+        flightNumber: '',
+        firstName: '',
+        lastName: ''
+    });
 
-        fetchPromise
-            .then(data => setReservations(data))
-            .catch(error => {
-                console.error("Fetch Error:", error);
-                toast.error("Failed to load reservations!");
-            })
-            .finally(() => setLoading(false));
+    const fetchAllReservations = React.useCallback(async () => {
+        try {
+            const data = (isAdmin && activeTab === 'ALL_RESERVATIONS')
+                ? await reservationService.getAllReservations()
+                : await reservationService.getMyReservations();
+            setReservations(data);
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            toast.error("Failed to load reservations!");
+        } finally {
+            setLoading(false);
+        }
     }, [isAdmin, activeTab]);
+
+    useEffect(() => {
+        // eslint-disable-next-line
+        fetchAllReservations();
+    }, [fetchAllReservations]);
+
+    const handleSearch = async (e: any) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const payload = {
+                id: searchParams.id ? Number(searchParams.id) : null,
+                flightNumber: searchParams.flightNumber ? String(searchParams.flightNumber) : null,
+                firstName: searchParams.firstName.trim() !== '' ? searchParams.firstName : null,
+                lastName: searchParams.lastName.trim() !== '' ? searchParams.lastName : null
+            };
+
+            const data = await reservationService.searchReservation(payload);
+            setReservations(data);
+        } catch (error: any) {
+            toast.error(error.response?.data || "Search failed");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleClear = () => {
+        setSearchParams({ id: '', flightNumber: '', firstName: '', lastName: '' });
+        fetchAllReservations();
+    };
 
     const handleCancel = async (id: number | string) => {
         if (!window.confirm("Are you sure you want to cancel this reservation?")) return;
@@ -40,15 +82,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
             }
             toast.success("Reservation has been cancelled.");
             
-            
-            const fetchPromise = (isAdmin && activeTab === 'ALL_RESERVATIONS')
-                ? reservationService.getAllReservations()
-                : reservationService.getMyReservations();
-
-            fetchPromise
-                .then(data => setReservations(data))
-                .catch(() => toast.error("Failed to reload reservations!"))
-                .finally(() => setLoading(false));
+            fetchAllReservations();
 
         } catch (error: any) {
             console.error("Cancel Error:", error);
@@ -73,19 +107,6 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
         }
     };
 
-    const filteredReservations = reservations.filter(res => {
-        if (activeTab === 'MY_RESERVATIONS') return true;
-        if (!searchTerm) return true;
-        
-        const term = searchTerm.toLowerCase();
-        const fullName = `${res.user?.firstName || ''} ${res.user?.lastName || ''}`.toLowerCase();
-        const flightNumber = (res.flight?.flightNumber || '').toLowerCase();
-        const resId = res.id?.toString() || '';
-        const userId = res.user?.id?.toString() || '';
-        
-        return fullName.includes(term) || flightNumber.includes(term) || resId.includes(term) || userId.includes(term);
-    });
-
     return (
         <div className="p-4">
             <div className="flex justify-between items-center mb-6 border-b pb-4">
@@ -95,12 +116,12 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
             </div>
 
             {isAdmin && (
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                <div className="flex flex-col mb-8 gap-4">
                     <div className="flex gap-4">
                         <button 
                             onClick={() => {
                                 setActiveTab('MY_RESERVATIONS');
-                                setSearchTerm('');
+                                setSearchParams({ id: '', flightNumber: '', firstName: '', lastName: '' });
                                 setLoading(true); 
                             }}
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
@@ -114,7 +135,7 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                         <button 
                             onClick={() => {
                                 setActiveTab('ALL_RESERVATIONS');
-                                setSearchTerm('');
+                                setSearchParams({ id: '', flightNumber: '', firstName: '', lastName: '' });
                                 setLoading(true);
                             }}
                             className={`px-6 py-2.5 rounded-full font-bold transition shadow-sm border-2 
@@ -128,26 +149,67 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
                     </div>
                     
                     {activeTab === 'ALL_RESERVATIONS' && (
-                        <input 
-                            type="text"
-                            placeholder="Search Name, ID or Flight..."
-                            value={searchTerm}
-                            onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
-                            className="w-full md:w-72 border-2 border-gray-200 p-2.5 rounded-full focus:border-red-900 outline-none text-sm font-semibold text-gray-700 transition"
-                        />
+                        <form onSubmit={handleSearch} className="flex flex-row justify-between items-center gap-4 mt-2">
+                            <div className="flex flex-row flex-wrap justify-start items-center gap-2 flex-1">
+                                <input 
+                                    type="text" 
+                                    value={searchParams.id}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchParams({...searchParams, id: e.target.value})}
+                                    className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-40"
+                                    placeholder="ID"
+                                />
+                                <input 
+                                    type="text" 
+                                    value={searchParams.flightNumber}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchParams({...searchParams, flightNumber: e.target.value})}
+                                    className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-40"
+                                    placeholder="Flight Number"
+                                />
+                                <input 
+                                    type="text" 
+                                    value={searchParams.firstName}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchParams({...searchParams, firstName: e.target.value})}
+                                    className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-40"
+                                    placeholder="First Name"
+                                />
+                                <input 
+                                    type="text" 
+                                    value={searchParams.lastName}
+                                    onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchParams({...searchParams, lastName: e.target.value})}
+                                    className="border p-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 w-40"
+                                    placeholder="Last Name"
+                                />
+                            </div>
+                            <div className="flex flex-row justify-end gap-2 shrink-0">
+                                <button 
+                                    type="submit" 
+                                    className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition"
+                                    disabled={loading}
+                                >
+                                    {loading ? 'Searching...' : 'Search'}
+                                </button>
+                                <button 
+                                    type="button" 
+                                    onClick={handleClear} 
+                                    className="bg-gray-600 text-white px-4 py-2 rounded hover:bg-gray-700 transition"
+                                >
+                                    Clear
+                                </button>
+                            </div>
+                        </form>
                     )}
                 </div>
             )}
 
             {loading ? (
                 <div className="text-center py-10 text-gray-500 font-semibold">Loading...</div>
-            ) : filteredReservations.length === 0 ? (
+            ) : reservations.length === 0 ? (
                 <div className="text-center py-10 text-gray-500 bg-white rounded-lg shadow-sm border border-dashed">
                     No reservations found.
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredReservations.map((reservation) => (
+                    {reservations.map((reservation) => (
                         <div key={reservation.id} className="bg-white rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 border border-gray-100 overflow-hidden flex flex-col">
                             <div className="bg-gray-50 px-5 py-3 border-b border-gray-100 flex justify-between items-center">
                                 <span className="bg-red-900 text-white text-xs font-black px-2 py-1 rounded tracking-widest shadow-sm">

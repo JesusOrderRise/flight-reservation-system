@@ -12,6 +12,8 @@ import com.frsystem.repository.FlightRepository;
 import com.frsystem.repository.ReservationRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.ExampleMatcher;
 import org.springframework.stereotype.Service;
@@ -33,6 +35,8 @@ public class FlightService {
     @Autowired
     private ReservationRepository reservationRepository;
 
+
+    @Cacheable(value = "flights")
     public List<FlightResponse> getAll() {
         return flightRepository.findAll()
                 .stream()
@@ -40,13 +44,14 @@ public class FlightService {
                 .toList();
     }
 
+    @CacheEvict(value = {"flights", "flightSearch"}, allEntries = true)
     public FlightResponse saveFlight(@Valid FlightRequest request) {
 
         Flight flight = flightMapper.toEntity(request);
         flight.setStatus(FlightStatus.ACTIVE);
         flight.setLastUpdate(Instant.now());
 
-        //TODO: BU VE DİĞER SERVİSLER İÇİN ARAMAK YERİNE REPOSİTORYDE EXİSTSBY TANIMLAYIP ONU KULLANABİLİRSİN.
+
         if (flightRepository.findByFlightNumber(flight.getFlightNumber()).isPresent()) {
             throw new ConflictException("There is an already existing flight with same flight number!");
         }
@@ -55,6 +60,7 @@ public class FlightService {
         return flightMapper.toResponse(flightRepository.save(flight));
     }
 
+    @Cacheable(value = "flightSearch", key = "#request.departureAirportId + '_' + #request.arrivalAirportId + '_' + #request.flightNumber")
     public List<FlightResponse> searchWithParameters(FlightRequest request) {
 
         Flight example = flightMapper.toEntity(request);
@@ -69,7 +75,7 @@ public class FlightService {
                 .toList();
     }
 
-    //TRANSACTIONAL OLABİLİR Mİ???
+    @CacheEvict(value = {"flights", "flightSearch"}, allEntries = true)
     public FlightResponse updateFlightStatus(Long ID, FlightStatus newStatus) {
         Flight existing = flightRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Flight with this ID!"));
@@ -81,6 +87,7 @@ public class FlightService {
         return flightMapper.toResponse(flightRepository.save(existing));
     }
 
+    @CacheEvict(value = {"flights", "flightSearch"}, allEntries = true)
     public void deleteFlightByID(Long ID) {
         Flight existing = flightRepository.findById(ID)
                 .orElseThrow(() -> new ResourceNotFoundException("There is no Flight with this ID!"));

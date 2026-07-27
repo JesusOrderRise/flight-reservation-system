@@ -1,4 +1,10 @@
 spring:
+  autoconfigure:
+    exclude:
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisAutoConfiguration
+      - org.springframework.boot.data.redis.autoconfigure.DataRedisReactiveAutoConfiguration
+  cache:
+    type: none
   jpa:
     show-sql: true
     database: POSTGRESQL

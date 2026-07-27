@@ -7,13 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class FlightResponse {
+public class FlightResponse implements Serializable {
 
     private Long id;
     private String flightNumber;
