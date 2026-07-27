@@ -27,7 +27,6 @@ const Reservations: React.FC<ReservationsProps> = ({ isAdmin }) => {
     });
 
     const fetchAllReservations = async () => {
-        setLoading(true);
         try {
             const data = (isAdmin && activeTab === 'ALL_RESERVATIONS')
                 ? await reservationService.getAllReservations()
