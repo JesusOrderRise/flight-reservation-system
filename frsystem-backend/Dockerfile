@@ -12,7 +12,7 @@ RUN mvn clean package -DskipTests
 FROM eclipse-temurin:26-jre-alpine
 WORKDIR /app
 
-RUN apk update && apk upgrade --no-cache
+RUN apk update && apk upgrade --no-cache && apk add --no-cache wget
 
 COPY --from=build /app/target/*.jar app.jar
 

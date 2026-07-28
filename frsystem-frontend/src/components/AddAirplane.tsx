@@ -118,6 +118,7 @@ const AddAirplane: React.FC<AddAirplaneProps> = ({ isOpen, onClose, onSuccess })
                         <label className="block text-sm font-medium text-gray-700 mb-1">Capacity</label>
                         <input
                             required
+                            type="number"
                             name="capacity"
                             value={formData.capacity}
                             onChange={handleInputChange}
