@@ -184,28 +184,3 @@ jobs:
           push: true
           tags: ${{ steps.meta-frontend.outputs.tags }}
           labels: ${{ steps.meta-frontend.outputs.labels }}
-
-  #DEPLOY TO RAILWAY (VIA GHCR IMAGES)
-  deploy-to-railway:
-    needs: [build-and-push-backend-docker, build-and-push-frontend-docker]
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set lowercase repository name
-        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
-
-      - name: Install Railway CLI
-        run: npm i -g @railway/cli
-
-      - name: Deploy Backend Image to Railway
-        run: railway up --service backend --image ghcr.io/${{ env.REPO_LC }}-backend:sha-${{ github.sha }} -d
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-
-      - name: Deploy Frontend Image to Railway
-        run: railway up --service frontend --image ghcr.io/${{ env.REPO_LC }}-frontend:sha-${{ github.sha }} -d
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
