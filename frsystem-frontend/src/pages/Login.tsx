@@ -58,7 +58,7 @@ const Login: React.FC = () => {
               alt="Rise and Fly Logo" 
               className="w-50 h-50 object-contain" 
             />
-            <h1 className="text-5xl font-black text-gray-800 tracking-wider">Rise And Fly</h1>
+            <h1 className="text-5xl font-black text-gray-800 tracking-wider">Rise and Fly</h1>
         </div>
         
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-lg shadow-md w-96">
